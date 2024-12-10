@@ -1,0 +1,125 @@
+name: CI/CD Process
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  check-simulations-native:
+    strategy:
+      matrix:
+        os: [ windows-2022, macos-14, ubuntu-24.04 ]
+    runs-on: ${{ matrix.os }}
+    concurrency:
+      group: sim-check${{ github.workflow }}${{ matrix.os }}${{ github.event.number || github.ref }}
+      cancel-in-progress: true
+    steps:
+    - name: Checkout
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - uses: DanySK/build-check-deploy-gradle-action@3.5.25
+      with:
+        build-command: true
+        check-command: ./gradlew runAllGraphic
+        deploy-command: true
+        should-run-codecov: false
+        should-validate-wrapper: ${{ contains('Linux', runner.os) }}
+  create-charts:
+    runs-on: ubuntu-24.04
+    concurrency:
+      group: charts${{ github.workflow }}${{ matrix.os }}${{ github.event.number || github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install python
+        uses: actions/setup-python@v5.3.0
+      - name: Upgrade pip
+        run: pip install --upgrade pip --user
+      - name: Install requirements
+        run: pip install -r requirements.txt --user
+      - name: Prepare charts folder
+        run: mkdir -p charts
+      - name: Generate charts
+        run: python process.py
+      - name: Generate archive
+        run: tar --use-compress-program zstd -cf charts.tar.zst charts/
+      - name: Upload charts
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          name: charts
+          path: charts.tar.zst
+  check-simulations-docker:
+    runs-on: ubuntu-24.04
+    concurrency:
+      group: container-check${{ github.workflow }}${{ matrix.os }}${{ github.event.number || github.ref }}
+      cancel-in-progress: true
+    steps:
+    - name: Checkout
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    - name: Prepare docker-compose to be tested in CI
+      run: sed 's/CI:\s.*/CI:\ \"true\"/g' -i docker-compose.yml
+    - name: Run compose
+      run: docker compose up --build
+  release:
+    needs:
+      - check-simulations-native
+      - check-simulations-docker
+      - create-charts
+    runs-on: ubuntu-24.04
+    concurrency:
+      # Only one release job at a time per branch, as only master releases.
+      group: release-${{ github.event.number || github.ref }}
+    if: >-
+      !github.event.repository.fork
+      && (
+        github.event_name != 'pull_request'
+        || github.event.pull_request.head.repo.full_name == github.repository
+      )
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: recursive
+          token: ${{ secrets.DEPLOYMENT_TOKEN }}
+      - name: Download charts artifact
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: charts
+      - name: Find the version of Node from package.json
+        id: node-version
+        run: echo "version=$(jq -r .engines.node package.json)" >> $GITHUB_OUTPUT
+      - name: Install Node
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: ${{ steps.node-version.outputs.version }}
+      - name: Login to dockerhub
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: danysk
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin docker.io
+      - name: Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.DEPLOYMENT_TOKEN }}
+        run: |
+          npm install
+          npx semantic-release
+  success:
+    runs-on: ubuntu-24.04
+    needs:
+      - create-charts
+      - check-simulations-native
+      - check-simulations-docker
+      - release
+    if: >-
+      always() && (
+        contains(join(needs.*.result, ','), 'failure')
+        || !contains(join(needs.*.result, ','), 'cancelled')
+      )
+    steps:
+      - name: Verify that there were no failures
+        run: ${{ !contains(join(needs.*.result, ','), 'failure') }}
