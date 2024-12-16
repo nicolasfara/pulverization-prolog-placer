@@ -100,7 +100,7 @@ jobs:
       - name: Login to dockerhub
         env:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          DOCKER_USERNAME: danysk
+          DOCKER_USERNAME: nicolasfarabegoli
         run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin docker.io
       - name: Semantic Release
         env:
