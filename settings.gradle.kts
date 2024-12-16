@@ -11,4 +11,4 @@ develocity {
     }
 }
 
-rootProject.name = "alchemist-experiments-bootstrap"
+rootProject.name = "experiment-2024-pulverization-prolog-placer"
