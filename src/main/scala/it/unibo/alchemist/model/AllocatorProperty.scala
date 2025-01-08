@@ -13,7 +13,7 @@ class AllocatorProperty[T, P <: Position[P]](
 ) extends NodeProperty[T] {
 
   private lazy val mid = node.getId
-  private val availableComponents = (programDag.keys.toSet ++ programDag.values.flatten.toSet)
+  private val availableComponents = programDag.keys.toSet ++ programDag.values.flatten.toSet
   private var componentsAllocation: Map[ComponentId, Int] = availableComponents
     .map(_ -> mid).toMap
 

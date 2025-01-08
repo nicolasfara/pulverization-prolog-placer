@@ -6,12 +6,13 @@ scalacache = "0.28.0"
 [libraries]
 alchemist = { module = "it.unibo.alchemist:alchemist", version.ref = "alchemist" }
 alchemist-scafi = { module = "it.unibo.alchemist:alchemist-incarnation-scafi", version.ref = "alchemist" }
+alchemist-swing = { module = "it.unibo.alchemist:alchemist-swingui", version.ref = "alchemist" }
 resourceloader = "org.danilopianini:thread-inheritable-resource-loader:0.3.7"
 scalacache-core = { module = "com.github.cb372:scalacache-core_2.13", version.ref = "scalacache" }
 scalacache-guava = { module = "com.github.cb372:scalacache-guava_2.13", version.ref = "scalacache" }
 
 [bundles]
-alchemist-scafi = [ "alchemist", "alchemist-scafi", "resourceloader", "scalacache-core", "scalacache-guava" ]
+alchemist-scafi = [ "alchemist", "alchemist-scafi", "alchemist-swing", "resourceloader", "scalacache-core", "scalacache-guava" ]
 
 [plugins]
 gitSemVer = { id = "org.danilopianini.git-sensitive-semantic-versioning", version = "3.1.7" }

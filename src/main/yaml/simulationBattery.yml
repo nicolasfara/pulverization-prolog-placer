@@ -1,0 +1,134 @@
+incarnation: surrogatescafi
+
+variables:
+  seed: &seed
+    min: 0
+    max: 1
+    step: 1
+    default: 0
+  #------------------------------------------------------------------
+  gradientProgram: &gradientProgram
+    language: scala
+    formula: "\"it.unibo.alchemist.Gradient\""
+  greaterDistance: &greaterDistance
+    language: scala
+    formula: "\"it.unibo.alchemist.GreaterDistance\""
+  programDag: &programDag
+    language: scala
+    formula: Map(gradientProgram -> Set(greaterDistance))
+  componentsInstructions: &componentsInstructions
+    language: scala
+    formula: |
+      Map(gradientProgram -> 10_000_000L, greaterDistance -> 16_500_000L)
+
+seeds:
+  scenario: *seed
+  simulation: *seed
+
+launcher:
+  parameters:
+    batch: [ seed ]
+
+network-model:
+  type: ConnectWithinDistancesEdge
+  parameters: [3]
+
+_constants:
+  retentionTime: &retentionTime 25.0
+
+_programs:
+  - program: &surrogateGradient
+      - time-distribution: 1
+        type: Event
+        actions:
+          - type: RunSurrogateScafiProgram
+            parameters: [ *gradientProgram, *retentionTime, *programDag ]
+      - program: sendSurrogate
+  - program: &surrogateGreater
+    - time-distribution: 1
+      type: Event
+      actions:
+        - type: RunSurrogateScafiProgram
+          parameters: [ *greaterDistance, *retentionTime, *programDag ]
+    - program: sendSurrogate
+  - program: &gradient
+      - time-distribution: 1
+        type: Event
+        actions:
+          - type: RunApplicationScafiProgram
+            parameters: [ *gradientProgram, *retentionTime, *programDag ]
+      - program: send
+  - program: &greater
+      - time-distribution: 1
+        type: Event
+        actions:
+          - type: RunApplicationScafiProgram
+            parameters: [ *greaterDistance, *retentionTime, *programDag ]
+      - program: send
+#  - program: &batteryDevice
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: BatteryEquippedDevice
+#            parameters: [ 4200.0, 1, *componentsInstructions, 100.0, 3.7, 0.5 ] # Battery capacity, EPI (nJ), components instructions
+
+environment:
+  type: Continuous2DEnvironment
+  parameters: []
+
+deployments:
+  - type: Grid
+    parameters: [-5, -5, 5, 5, 1,1, 0.1, 0.1]
+    programs:
+      - *gradient
+      - *greater
+#      - *batteryDevice
+    properties:
+      - type: AllocatorProperty
+        parameters: [ *programDag ]
+  - type: SpecificPositions # Edge Servers
+    parameters: [
+      [ 8.2152226, 6.3816613 ],
+      [ 8.2366507, 6.3838339 ],
+      #[ 8.2146077, 6.3485146 ],
+      #[ 8.2055562, 6.3778687 ],
+      #[ 8.1924837, 6.3458967 ],
+    ]
+    programs:
+      - *surrogateGradient
+      - *surrogateGreater
+    contents:
+      - molecule: infrastructuralDevice
+        concentration: true
+
+terminate:
+  type: AfterTime
+  parameters: 40
+
+export:
+  - type: CSVExporter
+    parameters:
+      fileNameRoot: "experiment-battery"
+      interval: 1.0
+      exportPath: "data"
+    data:
+      - time
+      - molecule: reward
+        aggregators: [min, max, mean, variance]
+        value-filter: onlyfinite
+        precision: 3
+      - molecule: batteryPercentage
+        aggregators: [min, max, mean, variance]
+        value-filter: onlyfinite
+      - molecule: batteryCapacity
+        aggregators: [min, max, mean, variance]
+        value-filter: onlyfinite
+      - molecule: localComponentsPercentage
+        aggregators: [ min, max, mean, variance ]
+        value-filter: onlyfinite
+      - molecule: componentsInCloud
+        aggregators: [ min, max, mean, variance ]
+        value-filter: onlyfinite
+      - molecule: componentsInInfrastructuralDevice
+        aggregators: [ min, max, mean, variance ]
+        value-filter: onlyfinite
