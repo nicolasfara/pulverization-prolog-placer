@@ -11,4 +11,4 @@ develocity {
     }
 }
 
-rootProject.name = "experiment-2024-pulverization-prolog-placer"
+rootProject.name = "experiments-2025-pulverization-prolog-placer"
