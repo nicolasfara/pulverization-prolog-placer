@@ -1,3 +1,16 @@
+## 1.0.0 (2025-01-08)
+
+### Features
+
+* add minimal platform code ([d3beee7](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/d3beee74ab7833e82332a55f353b13edccd13984))
+
+### Build and continuous integration
+
+* add dependnecies for scafi ([3e3076d](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/3e3076de61ca3ac4f4400c350bd4b26603c1effb))
+* add scala 2 compatible jvm version ([94eefb9](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/94eefb9b5ba8055c52a2fe203ed391a6abfe8812))
+* change project name ([ef18077](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/ef18077e84cb00b482f899879fc7e29c9dfb7c1e))
+* publish on my deocker hub profile ([d583579](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/d58357930f998597c00869e9d1e80b0c703beb12))
+
 ## [1.2.1](https://github.com/DanySK/alchemist-experiments-bootstrap/compare/1.2.0...1.2.1) (2024-02-09)
 
 
