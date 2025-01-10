@@ -78,7 +78,7 @@ environment:
 
 deployments:
   - type: Grid
-    parameters: [-5, -5, 5, 5, 1,1, 0.1, 0.1]
+    parameters: [-5, -5, -3, -3, 1, 1, 0.1, 0.1]
     programs:
       - *gradient
       - *greater
@@ -89,10 +89,10 @@ deployments:
   - type: SpecificPositions # Edge Servers
     parameters: [
       [ 8.2152226, 6.3816613 ],
-      [ 8.2366507, 6.3838339 ],
-      #[ 8.2146077, 6.3485146 ],
-      #[ 8.2055562, 6.3778687 ],
-      #[ 8.1924837, 6.3458967 ],
+#      [ 8.2366507, 6.3838339 ],
+#      [ 8.2146077, 6.3485146 ],
+#      [ 8.2055562, 6.3778687 ],
+#      [ 8.1924837, 6.3458967 ],
     ]
     programs:
       - *surrogateGradient
@@ -103,7 +103,7 @@ deployments:
 
 terminate:
   type: AfterTime
-  parameters: 40
+  parameters: 100
 
 export:
   - type: CSVExporter
