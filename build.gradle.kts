@@ -14,6 +14,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven("https://jitpack.io")
 }
 
 val usesJvm: Int =

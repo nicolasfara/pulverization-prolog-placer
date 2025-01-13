@@ -10,7 +10,7 @@ alchemist-swing = { module = "it.unibo.alchemist:alchemist-swingui", version.ref
 resourceloader = "org.danilopianini:thread-inheritable-resource-loader:0.3.7"
 scalacache-core = { module = "com.github.cb372:scalacache-core_2.13", version.ref = "scalacache" }
 scalacache-guava = { module = "com.github.cb372:scalacache-guava_2.13", version.ref = "scalacache" }
-swi-prolog = "com.github.SWI-Prolog:packages-jpl:7.6.1"
+swi-prolog = "com.github.SWI-Prolog:packages-jpl:V9.3.18"
 
 [bundles]
 alchemist-scafi = [ "alchemist", "alchemist-scafi", "alchemist-swing", "resourceloader", "scalacache-core", "scalacache-guava" ]
