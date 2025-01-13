@@ -91,7 +91,17 @@ File(rootProject.rootDir.path + "/src/main/yaml")
             group = alchemistGroup
             description = "Launches graphic simulation ${it.nameWithoutExtension}"
             mainClass.set("it.unibo.alchemist.Alchemist")
-            classpath = sourceSets["main"].runtimeClasspath
+            // -- Set the environment variables for SWI-Prolog
+            System.getenv("LD_LIBRARY_PATH") ?:
+                environment("LD_LIBRARY_PATH", "/usr/lib/swipl/lib/x86_64-linux")
+            System.getenv("SWI_HOME_DIR") ?:
+                environment("SWI_HOME_DIR", "/usr/lib/swipl")
+            System.getenv("SWI_EXEC_FILE") ?:
+                environment("SWI_EXEC_FILE", "/usr/lib/swipl/bin/x86_64-linux/swipl")
+            System.getenv("SWIPL_BOOT_FILE") ?:
+                environment("SWIPL_BOOT_FILE", "/usr/lib/swipl/boot.prc")
+            // -- End of SWI-Prolog environment variables
+            classpath = sourceSets["main"].runtimeClasspath + files("/usr/lib/swipl/lib/jpl.jar")
             args("run", it.absolutePath)
             javaLauncher.set(
                 javaToolchains.launcherFor {
