@@ -51,6 +51,7 @@ object DeploymentGenerator {
       physicalDevice <- physicalApplicationDevices ++ physicalInfrastructuralDevices
     } {
       prologProgram.append(physicalDevice.toProlog)
+      prologProgram.append(LINE_SEPARATOR)
       val physicalNeighbors = physicalLinks(physicalDevice)
       for {
         neighbor <- physicalNeighbors

@@ -4,7 +4,10 @@ import it.unibo.alchemist.model.Position
 
 final case class PhysicalDevice[P <: Position[P]](id: Int, pos: P, kind: Kind = Application, appLevel: Boolean = true) extends Prologable {
   import Constants._
-  override val name: String = s"$kind$id"
+  override val name: String = kind match {
+    case Application => s"robot$id"
+    case Infrastructural => s"cloud$id"
+  }
 
   override def toProlog: String = {
     val j = id
@@ -22,11 +25,11 @@ final case class PhysicalDevice[P <: Position[P]](id: Int, pos: P, kind: Kind = 
       val loadThreshold = 2
       val energyPerLoadLow = 0.12
       val energyPerLoadHigh = 0.20
-      s"energyConsumption($name, L, $energyPerLoadLow) :- L < $loadThreshold." +
-        s"energyConsumption($name, L, EpL) :- L >= $loadThreshold, " +
-        s"EpL is $energyPerLoadLow + L*$energyPerLoadHigh, EpL =< $energyPerLoadHigh." +
-        s"energyConsumption($name, L, $energyPerLoadHigh) :- L >= $loadThreshold, " +
-        s"EpL is $energyPerLoadLow + L*$energyPerLoadHigh, EpL > $energyPerLoadHigh."
+      s"""
+         |energyConsumption($name, L, $energyPerLoadLow) :- L < $loadThreshold.
+         |energyConsumption($name, L, EpL) :- L >= $loadThreshold, EpL is $energyPerLoadLow + L*$energyPerLoadHigh, EpL =< $energyPerLoadHigh.
+         |energyConsumption($name, L, $energyPerLoadHigh) :- L >= $loadThreshold, EpL is $energyPerLoadLow + L*$energyPerLoadHigh, EpL > $energyPerLoadHigh.
+         |""".stripMargin
     }
     s"""
       |physicalDevice($name, $availableHw, $totalHw, $capabilities).

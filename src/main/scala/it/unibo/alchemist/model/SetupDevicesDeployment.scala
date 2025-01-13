@@ -1,11 +1,13 @@
 package it.unibo.alchemist.model
 
-import it.unibo.alchemist.model.SetupDevicesDeployment.{APPLICATION_MOLECULE, INFRASTRUCTURAL_MOLECULE}
+import it.unibo.alchemist.model.SetupDevicesDeployment.{APPLICATION_MOLECULE, DEPLOYMENT_PROLOG_FILE, INFRASTRUCTURAL_MOLECULE}
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.prolog.DeploymentGenerator.generateDeployment
+import org.jpl7.{Atom, Query, Term}
 
-import java.nio.file.Files
+import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
+import scala.reflect.io.File
 
 class SetupDevicesDeployment[T, P <: Position[P]](
     environment: Environment[T, P],
@@ -16,9 +18,15 @@ class SetupDevicesDeployment[T, P <: Position[P]](
     val applicationDevice = nodesContainingMolecule(APPLICATION_MOLECULE)
     val infrastructuralDevice = nodesContainingMolecule(INFRASTRUCTURAL_MOLECULE)
     val deployment = generateDeployment(environment, applicationDevice, infrastructuralDevice)
-    val deploymentPrologFile = Files.createTempFile("deployment", ".pl")
-    Files.write(deploymentPrologFile, deployment.getBytes)
-    println(s"Deployment written to ${deploymentPrologFile.toAbsolutePath}")
+    Files.write(DEPLOYMENT_PROLOG_FILE, deployment.getBytes)
+
+    val queryResult = new Query(
+      "consult",
+      Array[Term](
+        new Atom(s"${DEPLOYMENT_PROLOG_FILE.toAbsolutePath.toString}")
+      )
+    )
+    println(s"Prolog file ${DEPLOYMENT_PROLOG_FILE.toAbsolutePath.toString} consulted: ${queryResult.hasSolution}")
   }
 
   private def nodesContainingMolecule(molecule: SimpleMolecule): List[Node[T]] =
@@ -28,4 +36,7 @@ class SetupDevicesDeployment[T, P <: Position[P]](
 object SetupDevicesDeployment {
   private val APPLICATION_MOLECULE = new SimpleMolecule("applicationDevice")
   private val INFRASTRUCTURAL_MOLECULE = new SimpleMolecule("infrastructuralDevice")
+  private val PROLOG_DIRECTORY = Path.of("src", "main", "resources", "prolog")
+  private val DEPLOYMENT_PROLOG_FILE = PROLOG_DIRECTORY.resolve("data.pl")
+  private val PROLOG_MAIN_FILE = PROLOG_DIRECTORY.resolve("main.pl")
 }
