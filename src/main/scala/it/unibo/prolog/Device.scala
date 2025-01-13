@@ -6,7 +6,7 @@ final case class Device[P <: Position[P]](id: Int, physicalTwin: PhysicalDevice[
   import Constants._
 
   override val name: String = s"$DD_NAME$id"
-  override def toProlog(): String = {
+  override def toProlog: String = {
     val i = id
     /*
      * % knowledge(DId, HWReqs).
