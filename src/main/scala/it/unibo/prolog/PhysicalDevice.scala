@@ -29,10 +29,9 @@ final case class PhysicalDevice[P <: Position[P]](id: Int, pos: P, kind: Kind = 
         s"EpL is $energyPerLoadLow + L*$energyPerLoadHigh, EpL > $energyPerLoadHigh."
     }
     s"""
-       |physicalDevice($name, $availableHw, $totalHw, $capabilities).
-       |$energyConsumption
-       |energySourceMix($name, $energySourceMix).
-       |pue($name, $pue).
-      """.stripMargin
+      |physicalDevice($name, $availableHw, $totalHw, $capabilities).
+      |$energyConsumption
+      |energySourceMix($name, $energySourceMix).
+      |pue($name, $pue).""".stripMargin
   }
 }

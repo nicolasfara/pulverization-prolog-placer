@@ -75,6 +75,12 @@ _programs:
 environment:
   type: Continuous2DEnvironment
   parameters: []
+  global-programs:
+    - time-distribution:
+        type: Trigger
+        parameters: [0]
+      type: SetupDevicesDeployment
+      parameters: []
 
 deployments:
   - type: Grid
@@ -83,6 +89,9 @@ deployments:
       - *gradient
       - *greater
 #      - *batteryDevice
+    contents:
+      - molecule: applicationDevice
+        concentration: true
     properties:
       - type: AllocatorProperty
         parameters: [ *programDag ]

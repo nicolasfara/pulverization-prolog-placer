@@ -50,9 +50,8 @@ object DeploymentGenerator {
     for {
       physicalDevice <- physicalApplicationDevices ++ physicalInfrastructuralDevices
     } {
-      prologProgram.append(physicalDevice.toProlog) ++ LINE_SEPARATOR
+      prologProgram.append(physicalDevice.toProlog)
       val physicalNeighbors = physicalLinks(physicalDevice)
-
       for {
         neighbor <- physicalNeighbors
       } {
@@ -64,14 +63,16 @@ object DeploymentGenerator {
           )
         // Different bandwidth based on the device kind -- TODO: double check constants
         val bandwidth = if (physicalDevice.appLevel) 10 else 100
-        prologProgram.append(s"link(${physicalDevice.name}, ${neighbor.name}, $bandwidth, $latency).") ++ LINE_SEPARATOR
+        prologProgram.append(s"link(${physicalDevice.name}, ${neighbor.name}, $bandwidth, $latency).")
+        prologProgram.append(LINE_SEPARATOR)
       }
     }
 
     for {
       device <- digitalDevices
     } {
-      prologProgram.append(device.toProlog) ++ LINE_SEPARATOR
+      prologProgram.append(device.toProlog)
+      prologProgram.append(LINE_SEPARATOR)
       // TODO: check the commented code
       /*
       val logicalNeighbors = applicationLinks(device)
@@ -85,7 +86,7 @@ object DeploymentGenerator {
     prologProgram.toString()
   }
 
-  private val LINE_SEPARATOR = java.lang.System.lineSeparator()
+  private val LINE_SEPARATOR = scala.util.Properties.lineSeparator
   private def getPhysicalDeviceById[P <: Position[P]](id: Int, devices: List[PhysicalDevice[P]]): Option[PhysicalDevice[P]] = {
     devices.find(_.id == id)
   }
