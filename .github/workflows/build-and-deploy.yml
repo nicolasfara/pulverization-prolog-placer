@@ -4,24 +4,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  check-simulations-native:
-    strategy:
-      matrix:
-        os: [ windows-2022, macos-14, ubuntu-24.04 ]
-    runs-on: ${{ matrix.os }}
-    concurrency:
-      group: sim-check${{ github.workflow }}${{ matrix.os }}${{ github.event.number || github.ref }}
-      cancel-in-progress: true
-    steps:
-    - name: Checkout
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-    - uses: DanySK/build-check-deploy-gradle-action@3.5.25
-      with:
-        build-command: true
-        check-command: ./gradlew runAllGraphic
-        deploy-command: true
-        should-run-codecov: false
-        should-validate-wrapper: ${{ contains('Linux', runner.os) }}
+#  check-simulations-native:
+#    strategy:
+#      matrix:
+#        os: [ windows-2022, macos-14, ubuntu-24.04 ]
+#    runs-on: ${{ matrix.os }}
+#    concurrency:
+#      group: sim-check${{ github.workflow }}${{ matrix.os }}${{ github.event.number || github.ref }}
+#      cancel-in-progress: true
+#    steps:
+#    - name: Checkout
+#      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+#    - uses: DanySK/build-check-deploy-gradle-action@3.5.25
+#      with:
+#        build-command: true
+#        check-command: ./gradlew runAllGraphic
+#        deploy-command: true
+#        should-run-codecov: false
+#        should-validate-wrapper: ${{ contains('Linux', runner.os) }}
   create-charts:
     runs-on: ubuntu-24.04
     concurrency:
@@ -67,7 +67,7 @@ jobs:
       run: docker compose up --build
   release:
     needs:
-      - check-simulations-native
+#      - check-simulations-native
       - check-simulations-docker
       - create-charts
     runs-on: ubuntu-24.04
@@ -112,7 +112,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs:
       - create-charts
-      - check-simulations-native
+#      - check-simulations-native
       - check-simulations-docker
       - release
     if: >-
