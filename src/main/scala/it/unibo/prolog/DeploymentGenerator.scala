@@ -46,6 +46,16 @@ object DeploymentGenerator {
     }
 
     val prologProgram = new StringBuilder()
+    prologProgram.append(
+      """
+        |:- discontiguous digitalDevice/3.
+        |:- discontiguous knowledge/2.
+        |:- discontiguous behaviour/3.
+        |:- discontiguous communication/3.
+        |:- discontiguous sense/3.
+        |:- discontiguous act/3.
+        |""".stripMargin
+    )
 
     for {
       physicalDevice <- physicalApplicationDevices ++ physicalInfrastructuralDevices

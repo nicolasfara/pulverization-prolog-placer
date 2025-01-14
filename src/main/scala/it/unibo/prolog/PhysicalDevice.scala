@@ -20,7 +20,7 @@ final case class PhysicalDevice[P <: Position[P]](id: Int, pos: P, kind: Kind = 
     // energyConsumption(N, Load, EnergyPerLoad)
     // Rumba 1.4KWh - 0.12KWh
     val energyConsumption = if (appLevel) {
-      s"energyConsumption($name, L, 1.4)."
+      s"energyConsumption($name, _, 1.4)."
     } else {
       val loadThreshold = 2
       val energyPerLoadLow = 0.12

@@ -5,7 +5,7 @@
 :- discontiguous physicalDevice/5.
 :- discontiguous energyConsumption/3.
 :- discontiguous pue/2. 
-:- discontiguous energySourceMix/2. 
+:- discontiguous energySourceMix/2.
 :- consult('energysourcedata.pl').
 :- consult('data.pl').
 

@@ -1,32 +1,49 @@
 package it.unibo.alchemist.model
 
-import it.unibo.alchemist.model.SetupDevicesDeployment.{APPLICATION_MOLECULE, DEPLOYMENT_PROLOG_FILE, INFRASTRUCTURAL_MOLECULE}
+import it.unibo.alchemist.model.SetupDevicesDeployment.{APPLICATION_MOLECULE, DEPLOYMENT_PROLOG_FILE, INFRASTRUCTURAL_MOLECULE, PROLOG_MAIN_FILE}
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.prolog.DeploymentGenerator.generateDeployment
-import org.jpl7.{Atom, Query, Term}
+import org.jpl7.{Atom, Query, Term, Variable}
 
 import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
-import scala.reflect.io.File
 
 class SetupDevicesDeployment[T, P <: Position[P]](
     environment: Environment[T, P],
     timeDistribution: TimeDistribution[T],
 ) extends AbstractGlobalReaction[T, P](environment, timeDistribution) {
+  private var executed = false
 
   override protected def executeBeforeUpdateDistribution(): Unit = {
-    val applicationDevice = nodesContainingMolecule(APPLICATION_MOLECULE)
-    val infrastructuralDevice = nodesContainingMolecule(INFRASTRUCTURAL_MOLECULE)
-    val deployment = generateDeployment(environment, applicationDevice, infrastructuralDevice)
-    Files.write(DEPLOYMENT_PROLOG_FILE, deployment.getBytes)
+    if (!executed) {
+      val applicationDevice = nodesContainingMolecule(APPLICATION_MOLECULE)
+      val infrastructuralDevice = nodesContainingMolecule(INFRASTRUCTURAL_MOLECULE)
+      val deployment = generateDeployment(environment, applicationDevice, infrastructuralDevice)
+      Files.write(DEPLOYMENT_PROLOG_FILE, deployment.getBytes)
 
-    val queryResult = new Query(
-      "consult",
-      Array[Term](
-        new Atom(s"${DEPLOYMENT_PROLOG_FILE.toAbsolutePath.toString}")
+      val consultResult = new Query(
+        "consult",
+        Array[Term](
+          new Atom(s"${PROLOG_MAIN_FILE.toAbsolutePath.toString}"),
+        ),
       )
-    )
-    println(s"Prolog file ${DEPLOYMENT_PROLOG_FILE.toAbsolutePath.toString} consulted: ${queryResult.hasSolution}")
+      println(s"Prolog file ${PROLOG_MAIN_FILE.toAbsolutePath.toString} consulted: ${consultResult.hasSolution}")
+      // Query the knowledge base
+      val queryResult = new Query(
+        "placeAll",
+        Array[Term](
+          new Atom("heu"),
+          new Variable("T"),
+        )
+      )
+      while (queryResult.hasMoreSolutions) {
+        val solution = queryResult.nextSolution().get("P")
+        if (solution != null) {
+          println(s"Solution: $solution")
+        }
+      }
+    }
+    executed = true
   }
 
   private def nodesContainingMolecule(molecule: SimpleMolecule): List[Node[T]] =

@@ -84,7 +84,7 @@ environment:
 
 deployments:
   - type: Grid
-    parameters: [-5, -5, -3, -3, 1, 1, 0.1, 0.1]
+    parameters: [-5, -5, -4, -3, 1, 1, 0.1, 0.1]
     programs:
       - *gradient
       - *greater
