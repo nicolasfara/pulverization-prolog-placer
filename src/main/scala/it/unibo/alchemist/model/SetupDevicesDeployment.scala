@@ -32,16 +32,20 @@ class SetupDevicesDeployment[T, P <: Position[P]](
       val queryResult = new Query(
         "placeAll",
         Array[Term](
-          new Atom("heu"),
-          new Variable("T"),
+          new Atom("opt"),
+          new Variable("P"),
         )
       )
-      while (queryResult.hasMoreSolutions) {
+      if (queryResult.hasSolution) {
         val solution = queryResult.nextSolution().get("P")
-        if (solution != null) {
-          println(s"Solution: $solution")
-        }
+        println(s"Solution: $solution")
       }
+//      while (queryResult.hasMoreSolutions) {
+//        val solution = queryResult.nextSolution().get("P")
+//        if (solution != null) {
+//          println(s"Solution: $solution")
+//        }
+//      }
     }
     executed = true
   }
