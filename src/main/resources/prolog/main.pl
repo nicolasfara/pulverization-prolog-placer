@@ -101,7 +101,7 @@ hardwareFootprint([],_,0,0).
 
 nodeEnergy(N,Placement,Energy):-
     physicalDevice(N, HW, TotHW, _, _), pue(N,PUE), 
-    % OldL is 100 * (TotHW - HW) / TotHW, energyConsumption(N,OldL,OldE),
+    OldL is 100 * (TotHW - HW) / TotHW, energyConsumption(N,OldL,OldE),
     findall(H,member(on(_,N,H),Placement),HWs), sum_list(HWs,PHW),
     NewL is 100 * (TotHW - HW + PHW) / TotHW, energyConsumption(N,NewL,NewE),
     Energy is (NewE - OldE) * PUE.
