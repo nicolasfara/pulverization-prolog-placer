@@ -17,18 +17,18 @@ link(X,X,0,inf). % self-link with infinite bw and null latency
 
 hPlace(DigDev, Placement, E, C, Nodes) :-
     digitalDevice(DigDev, K, Components),
-    placeKnowledge(K,(K,N,H)), 
-    placeComponents(Components,N,[(K,N,H)],Placement),
+    placeKnowledge(K, N, KonN),
+    placeComponents(Components,N,[KonN],Placement),
     footprint(Placement,E,C), involvedNodes(Placement,_,Nodes).
 
 % optimalPlace/3 finds one of the placements with  
 % minimal number of nodes and lowest energy consumption.
 optimalPlace(DigDev,OptimalPlacement) :-
-    findall((N,C,E,P), ( place(DigDev,P), footprint(P,E,C), involvedNodes(P,_,N)), Placements),
+    findall(p(N,C,E,P), (place(DigDev,P), footprint(P,E,C), involvedNodes(P,_,N)), Placements),
     sort(Placements, [OptimalPlacement|_]).
 
 involvedNodes(P,Nodes,M) :-
-    findall(N, member((_,N,_), P), Ns), list_to_set(Ns, Nodes), %writeln(Ns),
+    findall(N, member(on(_,N,_), P), Ns), list_to_set(Ns, Nodes), %writeln(Ns),
     length(Nodes, M).
 
 %   place/2 suitably places a pulverised digital device DigDev onto 
@@ -39,17 +39,17 @@ involvedNodes(P,Nodes,M) :-
 %       - H is the amount of hardware that C requires at N, and
 place(DigDev, Placement) :-
     digitalDevice(DigDev, K, Components),
-    placeKnowledge(K,(K,N,H)), 
-    placeComponents(Components,N,[(K,N,H)],Placement),
+    placeKnowledge(K,N,KonN),
+    placeComponents(Components,N,[KonN],Placement),
     connectivityOk(Placement).
 
 % checks that all components of a digital device can communicate according to a chosen Placement
 connectivityOk(Placement) :-
-    \+ (member((C1,N1,_), Placement), member((C2,N2,_), Placement), dif(C1,C2), \+ link(N1,N2,_,_)).
+    \+ (member(on(C1,N1,_), Placement), member(on(C2,N2,_), Placement), dif(C1,C2), \+ link(N1,N2,_,_)).
 
 % placeKnowledge/2 places a knowledge component K onto a node N that
 % supports its hardware requirements.
-placeKnowledge(K,(K,N,HWReqs)) :-
+placeKnowledge(K,N,on(K,N,HWReqs)) :-
     knowledge(K, HWReqs),
     physicalDevice(N, HWCaps, _, _, _),
     HWReqs =< HWCaps.
@@ -59,13 +59,13 @@ placeKnowledge(K,(K,N,HWReqs)) :-
 % latency towards the node where the component K is placed. 
 % Note: cumulative hardware consumption is checked incrementally
 placeComponents([C|Cs],NK,Placement,NewPlacement):-
-    member((_,N,_), Placement), physicalDevice(N, HWCaps, _, Sensors, Actuators), 
+    member(on(_,N,_), Placement), physicalDevice(N, HWCaps, _, Sensors, Actuators),
     (
         (sense(C, HWReqs, LatToK), member((C,_), Sensors)); (act(C, HWReqs, LatToK), member((C,_), Actuators))
     ),
     latencyOK(N,NK,LatToK),
     hwOK(N,Placement,HWCaps,HWReqs),
-    placeComponents(Cs,NK,[(C,N,HWReqs)|Placement],NewPlacement).
+    placeComponents(Cs,NK,[on(C,N,HWReqs)|Placement],NewPlacement).
 placeComponents([C|Cs],NK,Placement,NewPlacement):-
     physicalDevice(N, HWCaps, _, Sensors, Actuators), 
     (
@@ -73,23 +73,23 @@ placeComponents([C|Cs],NK,Placement,NewPlacement):-
     ),
     latencyOK(N,NK,LatToK),
     hwOK(N,Placement,HWCaps,HWReqs),
-    placeComponents(Cs,NK,[(C,N,HWReqs)|Placement],NewPlacement).
+    placeComponents(Cs,NK,[on(C,N,HWReqs)|Placement],NewPlacement).
 placeComponents([C|Cs],NK,Placement,NewPlacement):-
-    member((_,N,_), Placement), physicalDevice(N, HWCaps, _, _, _),
+    member(on(_,N,_), Placement), physicalDevice(N, HWCaps, _, _, _),
     (behaviour(C, HWReqs, LatToK); communication(C, HWReqs, LatToK)),
     latencyOK(N,NK,LatToK),
     hwOK(N,Placement,HWCaps,HWReqs),
-    placeComponents(Cs,NK,[(C,N,HWReqs)|Placement], NewPlacement).
+    placeComponents(Cs,NK,[on(C,N,HWReqs)|Placement], NewPlacement).
 placeComponents([C|Cs],NK,Placement,NewPlacement):-
     physicalDevice(N, HWCaps, _, _, _),
     (behaviour(C, HWReqs, LatToK); communication(C, HWReqs, LatToK)),
     latencyOK(N,NK,LatToK),
     hwOK(N,Placement,HWCaps,HWReqs),
-    placeComponents(Cs,NK,[(C,N,HWReqs)|Placement], NewPlacement).
+    placeComponents(Cs,NK,[on(C,N,HWReqs)|Placement], NewPlacement).
 placeComponents([],_,P,P).
 
 footprint(Placement,Energy,Carbon) :-
-    findall(N, member((_,N,_), Placement), Ns), sort(Ns, Nodes),
+    findall(N, member(on(_,N,_), Placement), Ns), sort(Ns, Nodes),
     hardwareFootprint(Nodes,Placement,Energy,Carbon).
 
 hardwareFootprint([N|Ns],Placement,Energy,Carbon) :-
@@ -101,8 +101,8 @@ hardwareFootprint([],_,0,0).
 
 nodeEnergy(N,Placement,Energy):-
     physicalDevice(N, HW, TotHW, _, _), pue(N,PUE), 
-    OldL is 100 * (TotHW - HW) / TotHW, energyConsumption(N,OldL,OldE),
-    findall(H,member((_,N,H),Placement),HWs), sum_list(HWs,PHW), 
+    % OldL is 100 * (TotHW - HW) / TotHW, energyConsumption(N,OldL,OldE),
+    findall(H,member(on(_,N,H),Placement),HWs), sum_list(HWs,PHW),
     NewL is 100 * (TotHW - HW + PHW) / TotHW, energyConsumption(N,NewL,NewE),
     Energy is (NewE - OldE) * PUE.
 
@@ -114,7 +114,7 @@ nodeEmissions([],_,0).
 % hwOK/4 holds if all components placed at node N by Placement do not exceed 
 % the current capacity of N when adding a new component that requires HWReqs.
 hwOK(N,Placement,HWCaps,HWReqs) :-
-    findall(H, member((_,N,H),Placement), Hs), sumlist(Hs,UsedHW), HWReqs =< HWCaps - UsedHW.
+    findall(H, member(on(_,N,H),Placement), Hs), sumlist(Hs,UsedHW), HWReqs =< HWCaps - UsedHW.
 
 % latencyOK/3 holds if the link between N and M supports the latency 
 % requirements LatReq
