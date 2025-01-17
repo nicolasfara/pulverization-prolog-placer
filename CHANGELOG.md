@@ -1,3 +1,44 @@
+## [1.1.0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.0.0...1.1.0) (2025-01-17)
+
+### Features
+
+* add five components ([4547d85](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/4547d8590c146b7e7c213c4d74fbfa48a796017f))
+
+### Dependency updates
+
+* **deps:** update alchemist to v36.0.12 ([#1](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/1)) ([7fb21c0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/7fb21c0d797d2201cd69c7c5a7b8ffdce8617f5e))
+* **deps:** update alpine docker tag to v3.21.1 ([#22](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/22)) ([3de8629](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/3de862917453f824d15ade7b67eed5995cea2138))
+* **deps:** update alpine docker tag to v3.21.2 ([#26](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/26)) ([8906d39](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/8906d39203da85ab93f357a9d459f3f392b6d2d5))
+* **deps:** update dependency gradle to v8.12 ([#7](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/7)) ([2f69c80](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/2f69c809b3885d3ecddb7342070e3bee849635c6))
+* **deps:** update dependency matplotlib to v3.10.0 ([#8](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/8)) ([5afb6c9](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/5afb6c97e525dc83504040d636f836e5a7a93b2c))
+* **deps:** update dependency matplotlib to v3.9.4 ([#2](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/2)) ([bdb04c4](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/bdb04c4be555ca971aa419b0f8d27c61c78124d3))
+* **deps:** update dependency scalafmt to v3.8.4 ([#14](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/14)) ([6cc314d](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/6cc314d6118ad347e351fcbe96a592196bc9509a))
+* **deps:** update dependency scalafmt to v3.8.5 ([#27](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/27)) ([06e77a3](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/06e77a3a6f0c7a82e9ea892a61587922ec5e4ecf))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.119 ([#3](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/3)) ([e4ff96f](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/e4ff96feab34922435f2115c9ada41b09e23e62b))
+* **deps:** update dependency xarray to v2025 ([#12](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/12)) ([c2cd713](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/c2cd713c6d820ceb066f40715d9bd69a3b65ec6a))
+* **deps:** update eclipse-temurin docker tag to v18 ([#15](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/15)) ([1fdd91e](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/1fdd91e8c91b1a5e1516b222c98b5fcc129f2205))
+* **deps:** update eclipse-temurin docker tag to v19 ([#16](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/16)) ([5c09822](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/5c09822b658f0f302b1a6dda224cdfd1eda9e096))
+* **deps:** update node.js to 22.13 ([#21](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/21)) ([3cbc08b](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/3cbc08be7b80b1e8b6ccd2bd1dd893f6e0ef9802))
+* **deps:** update plugin com.gradle.enterprise to v3.19 ([#9](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/9)) ([0c3fab5](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/0c3fab5ca4b89a3aa12646921f04bdc548cca601))
+* **deps:** update plugin multijvmtesting to v3.0.3 ([#4](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/4)) ([25edead](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/25edead383dd114b102aba58932c65858bf39295))
+* **deps:** update plugin multijvmtesting to v3.1.2 ([#10](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/10)) ([e3685a8](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/e3685a85e47ae28e4f2ee2ccf8769305d847700a))
+
+### Build and continuous integration
+
+* configure swipl ([5173b7d](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/5173b7dcca98133e6adc0c26f73f129a75addbb7))
+* **deps:** update actions/upload-artifact action to v4.5.0 ([#11](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/11)) ([ccd4361](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/ccd43610c5e9bd95b2b4fe81179b0501371baf9b))
+* **deps:** update actions/upload-artifact action to v4.6.0 ([#25](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/25)) ([709b248](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/709b2487847bfc6b2f6956272dedff1f569e8261))
+* disable (temporarily) native checks, since it is already tested in docker ([eb3508f](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/eb3508f65d1d7702b4a2a09ae523452f2495322b))
+
+### General maintenance
+
+* **docker:** add swipl into docker image ([b5a11ba](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/b5a11ba73d7ec31a7e7606fba5ec018d1dce4c81))
+* **release:** update gradle.properties .env versions to 1.0.0 [skip ci] ([7556613](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/7556613cd7bd288dda84fd6b1390daae41086656))
+
+### Refactoring
+
+* minor for interoperability with swipl ([beb668c](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/beb668c5956b9b8da1e4b4abbdf5b91d4e75f779))
+
 ## 1.0.0 (2025-01-08)
 
 ### Features
