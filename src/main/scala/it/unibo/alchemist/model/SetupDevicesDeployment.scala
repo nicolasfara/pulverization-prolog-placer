@@ -1,6 +1,6 @@
 package it.unibo.alchemist.model
 
-import it.unibo.alchemist.model.SetupDevicesDeployment.{APPLICATION_MOLECULE, DEPLOYMENT_PROLOG_FILE, INFRASTRUCTURAL_MOLECULE, PROLOG_MAIN_FILE}
+import it.unibo.alchemist.model.SetupDevicesDeployment.{APPLICATION_MOLECULE, ENERGY_SOURCE_DATA, ENERGY_SOURCE_FILE_NAME, INFRASTRUCTURAL_MOLECULE, MAIN_FILE_NAME, PROLOG_MAIN_FILE}
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.prolog.DeploymentGenerator.generateDeployment
 import it.unibo.prolog.{Component, PlaceDevice, Placement}
@@ -18,18 +18,14 @@ class SetupDevicesDeployment[T, P <: Position[P]](
   private val componentPattern = """([a-z]+)(\d+)""".r
 
   override protected def executeBeforeUpdateDistribution(): Unit = {
-    val applicationDevice = nodesContainingMolecule(APPLICATION_MOLECULE)
-    val infrastructuralDevice = nodesContainingMolecule(INFRASTRUCTURAL_MOLECULE)
-    val deployment = generateDeployment(environment, applicationDevice, infrastructuralDevice)
-    Files.write(DEPLOYMENT_PROLOG_FILE, deployment.getBytes)
-
+    val mainFile = writePrologFilesIntoTempDirectory()
     val consultResult = new Query(
       "consult",
       Array[Term](
-        new Atom(s"${PROLOG_MAIN_FILE.toAbsolutePath.toString}"),
+        new Atom(s"${mainFile.toAbsolutePath.toString}"),
       ),
     )
-    println(s"Prolog file ${PROLOG_MAIN_FILE.toAbsolutePath.toString} consulted: ${consultResult.hasSolution}")
+    println(s"Prolog file ${mainFile.toAbsolutePath.toString} consulted: ${consultResult.hasSolution}")
     // Query the knowledge base
     val queryResult = new Query(
       "placeAll",
@@ -43,6 +39,17 @@ class SetupDevicesDeployment[T, P <: Position[P]](
       val placements = parseSolution(solution)
       println(s"Placements: $placements")
     }
+  }
+
+  private def writePrologFilesIntoTempDirectory(): Path = {
+    val applicationDevice = nodesContainingMolecule(APPLICATION_MOLECULE)
+    val infrastructuralDevice = nodesContainingMolecule(INFRASTRUCTURAL_MOLECULE)
+    val deployment = generateDeployment(environment, applicationDevice, infrastructuralDevice)
+    val destinationDirectory = Files.createTempDirectory("prolog")
+    val mainFile = Files.copy(PROLOG_MAIN_FILE, destinationDirectory.resolve(MAIN_FILE_NAME))
+    Files.copy(ENERGY_SOURCE_DATA, destinationDirectory.resolve(ENERGY_SOURCE_FILE_NAME))
+    Files.write(destinationDirectory.resolve("data.pl"), deployment.getBytes)
+    mainFile
   }
 
   private def parseSolution(solution: Term): List[Placement] = {
@@ -62,6 +69,8 @@ object SetupDevicesDeployment {
   private val APPLICATION_MOLECULE = new SimpleMolecule("applicationDevice")
   private val INFRASTRUCTURAL_MOLECULE = new SimpleMolecule("infrastructuralDevice")
   private val PROLOG_DIRECTORY = Path.of("src", "main", "resources", "prolog")
-  private val DEPLOYMENT_PROLOG_FILE = PROLOG_DIRECTORY.resolve("data.pl")
-  private val PROLOG_MAIN_FILE = PROLOG_DIRECTORY.resolve("main.pl")
+  private val MAIN_FILE_NAME = "main.pl"
+  private val ENERGY_SOURCE_FILE_NAME = "energysourcedata.pl"
+  private val PROLOG_MAIN_FILE = PROLOG_DIRECTORY.resolve(MAIN_FILE_NAME)
+  private val ENERGY_SOURCE_DATA = PROLOG_DIRECTORY.resolve(ENERGY_SOURCE_FILE_NAME)
 }

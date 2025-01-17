@@ -45,7 +45,6 @@ public final class Trigger<T> extends AbstractDistribution<T> {
             final double param,
             final Environment<T, ?> environment
     ) {
-
         if (executed) {
             setNextOccurrence(new DoubleTime(Double.POSITIVE_INFINITY));
         }

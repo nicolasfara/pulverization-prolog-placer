@@ -7,19 +7,33 @@ variables:
     step: 1
     default: 0
   #------------------------------------------------------------------
-  gradientProgram: &gradientProgram
+  sensorsProgram: &sensorsProgram
     language: scala
-    formula: "\"it.unibo.alchemist.Gradient\""
-  greaterDistance: &greaterDistance
+    formula: "\"it.unibo.alchemist.Sensors\""
+  actuatorsProgram: &actuatorsProgram
     language: scala
-    formula: "\"it.unibo.alchemist.GreaterDistance\""
+    formula: "\"it.unibo.alchemist.Actuators\""
+  knowledgeProgram: &knowledgeProgram
+    language: scala
+    formula: "\"it.unibo.alchemist.Knowledge\""
+  communicationProgram: &communicationProgram
+    language: scala
+    formula: "\"it.unibo.alchemist.Communication\""
+  behaviorProgram: &behaviorProgram
+    language: scala
+    formula: "\"it.unibo.alchemist.Behavior\""
   programDag: &programDag
     language: scala
-    formula: Map(gradientProgram -> Set(greaterDistance))
-  componentsInstructions: &componentsInstructions
-    language: scala
-    formula: |
-      Map(gradientProgram -> 10_000_000L, greaterDistance -> 16_500_000L)
+    formula: >
+      Map(
+        sensorsProgram -> Set(behaviorProgram),
+        knowledgeProgram -> Set(behaviorProgram),
+        behaviorProgram -> Set(communicationProgram, actuatorsProgram, knowledgeProgram),
+      )
+#  componentsInstructions: &componentsInstructions
+#    language: scala
+#    formula: |
+#      Map(gradientProgram -> 10_000_000L, greaterDistance -> 16_500_000L)
 
 seeds:
   scenario: *seed
@@ -37,33 +51,80 @@ _constants:
   retentionTime: &retentionTime 25.0
 
 _programs:
-  - program: &surrogateGradient
+  # SENSORS --
+  - program: &surrogateSensors
       - time-distribution: 1
         type: Event
         actions:
           - type: RunSurrogateScafiProgram
-            parameters: [ *gradientProgram, *retentionTime, *programDag ]
+            parameters: [ *sensorsProgram, *retentionTime, *programDag ]
       - program: sendSurrogate
-  - program: &surrogateGreater
-    - time-distribution: 1
-      type: Event
-      actions:
-        - type: RunSurrogateScafiProgram
-          parameters: [ *greaterDistance, *retentionTime, *programDag ]
-    - program: sendSurrogate
-  - program: &gradient
+  - program: &sensors
       - time-distribution: 1
         type: Event
         actions:
           - type: RunApplicationScafiProgram
-            parameters: [ *gradientProgram, *retentionTime, *programDag ]
+            parameters: [ *sensorsProgram, *retentionTime, *programDag ]
       - program: send
-  - program: &greater
+  ## ACTUATORS --
+  - program: &surrogateActuators
+      - time-distribution: 1
+        type: Event
+        actions:
+          - type: RunSurrogateScafiProgram
+            parameters: [ *actuatorsProgram, *retentionTime, *programDag ]
+      - program: sendSurrogate
+  - program: &actuators
       - time-distribution: 1
         type: Event
         actions:
           - type: RunApplicationScafiProgram
-            parameters: [ *greaterDistance, *retentionTime, *programDag ]
+            parameters: [ *actuatorsProgram, *retentionTime, *programDag ]
+      - program: send
+  ## KNOWLEDGE --
+  - program: &surrogateKnowledge
+      - time-distribution: 1
+        type: Event
+        actions:
+          - type: RunSurrogateScafiProgram
+            parameters: [ *knowledgeProgram, *retentionTime, *programDag ]
+      - program: sendSurrogate
+  - program: &knowledge
+      - time-distribution: 1
+        type: Event
+        actions:
+          - type: RunApplicationScafiProgram
+            parameters: [ *knowledgeProgram, *retentionTime, *programDag ]
+      - program: send
+  ## COMMUNICATION --
+  - program: &surrogateCommunication
+      - time-distribution: 1
+        type: Event
+        actions:
+          - type: RunSurrogateScafiProgram
+            parameters: [ *communicationProgram, *retentionTime, *programDag ]
+      - program: sendSurrogate
+  - program: &communication
+      - time-distribution: 1
+        type: Event
+        actions:
+          - type: RunApplicationScafiProgram
+            parameters: [ *communicationProgram, *retentionTime, *programDag ]
+      - program: send
+  ## BEHAVIOR --
+  - program: &surrogateBehavior
+      - time-distribution: 1
+        type: Event
+        actions:
+          - type: RunSurrogateScafiProgram
+            parameters: [ *behaviorProgram, *retentionTime, *programDag ]
+      - program: sendSurrogate
+  - program: &behavior
+      - time-distribution: 1
+        type: Event
+        actions:
+          - type: RunApplicationScafiProgram
+            parameters: [ *behaviorProgram, *retentionTime, *programDag ]
       - program: send
 #  - program: &batteryDevice
 #      - time-distribution: 1
@@ -86,8 +147,11 @@ deployments:
   - type: Grid
     parameters: [-5, -5, -4, -3, 1, 1, 0.1, 0.1]
     programs:
-      - *gradient
-      - *greater
+      - *sensors
+      - *actuators
+      - *knowledge
+      - *communication
+      - *behavior
 #      - *batteryDevice
     contents:
       - molecule: applicationDevice
@@ -98,14 +162,17 @@ deployments:
   - type: SpecificPositions # Edge Servers
     parameters: [
       [ 8.2152226, 6.3816613 ],
-#      [ 8.2366507, 6.3838339 ],
+      [ 8.2366507, 6.3838339 ],
 #      [ 8.2146077, 6.3485146 ],
 #      [ 8.2055562, 6.3778687 ],
 #      [ 8.1924837, 6.3458967 ],
     ]
     programs:
-      - *surrogateGradient
-      - *surrogateGreater
+      - *surrogateActuators
+      - *surrogateSensors
+      - *surrogateKnowledge
+      - *surrogateCommunication
+      - *surrogateBehavior
     contents:
       - molecule: infrastructuralDevice
         concentration: true
