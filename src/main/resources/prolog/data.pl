@@ -1,11 +1,3 @@
-
-:- discontiguous digitalDevice/3.
-:- discontiguous knowledge/2.
-:- discontiguous behaviour/3.
-:- discontiguous communication/3.
-:- discontiguous sense/3.
-:- discontiguous act/3.
-
 physicalDevice(robot0, 8, 8, [(s0, temperature)], [(a0, thermostate)]).
 energyConsumption(robot0, _, 1.4).
 energySourceMix(robot0, [(0.4,coal), (0.6,solar)]).

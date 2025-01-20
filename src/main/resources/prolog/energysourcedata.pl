@@ -1,4 +1,3 @@
-
 % emissions in CO2 kg/kWh
 emissions(gas, 0.610).
 emissions(coal, 1.1).
