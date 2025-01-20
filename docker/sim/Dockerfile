@@ -1,4 +1,4 @@
-FROM eclipse-temurin:20
+FROM eclipse-temurin:17
 
 RUN mkdir /experiment
 WORKDIR /experiment
