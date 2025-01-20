@@ -2,12 +2,23 @@ package it.unibo.prolog
 
 sealed trait Component {
   val id: Int
+  val fqn: String
 }
-case class Sensor(override val id: Int) extends Component
-case class Actuator(override val id: Int) extends Component
-case class Communication(override val id: Int) extends Component
-case class Knowledge(override val id: Int) extends Component
-case class Behavior(override val id: Int) extends Component
+case class Sensor(override val id: Int) extends Component {
+  override val fqn: String = "it.unibo.alchemist.Sensors"
+}
+case class Actuator(override val id: Int) extends Component {
+  override val fqn: String = "it.unibo.alchemist.Actuators"
+}
+case class Communication(override val id: Int) extends Component {
+  override val fqn: String = "it.unibo.alchemist.Communication"
+}
+case class Knowledge(override val id: Int) extends Component {
+  override val fqn: String = "it.unibo.alchemist.Knowledge"
+}
+case class Behavior(override val id: Int) extends Component {
+  override val fqn: String = "it.unibo.alchemist.Behavior"
+}
 object Component {
   def apply(str: String, i: Int): Component = str match {
     case "s"  => Sensor(i)

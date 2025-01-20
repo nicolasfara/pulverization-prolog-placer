@@ -4,7 +4,7 @@ import it.unibo.alchemist.model.implementations.actions.RunScafiProgram.{Neighbo
 import it.unibo.alchemist.model.implementations.nodes.SimpleNodeManager
 import it.unibo.alchemist.model.scafi.ScafiIncarnationForAlchemist
 import it.unibo.alchemist.model.scafi.ScafiIncarnationForAlchemist.{CNAME, CONTEXT, ContextImpl, EXPORT, ID, LSNS_ALCHEMIST_COORDINATES, LSNS_ALCHEMIST_DELTA_TIME, LSNS_ALCHEMIST_ENVIRONMENT, LSNS_ALCHEMIST_NODE_MANAGER, LSNS_ALCHEMIST_RANDOM, LSNS_ALCHEMIST_TIMESTAMP, NBR_ALCHEMIST_DELAY, NBR_ALCHEMIST_LAG}
-import it.unibo.alchemist.model.{Action, Environment, Node, Position, Time => AlchemistTime}
+import it.unibo.alchemist.model.{Action, Environment, Node, NodeProperty, Position, Time => AlchemistTime}
 import it.unibo.alchemist.scala.PimpMyAlchemist._
 import it.unibo.scafi.space.Point3D
 import org.apache.commons.math3.random.RandomGenerator
@@ -34,6 +34,13 @@ object AlchemistScafiUtils {
       .flatMap(_.getActions.asScala)
       .filter(clazz.isInstance(_))
       .map(_.asInstanceOf[K])
+  }
+
+  def getNodeProperty[T, P <: Position[P], Prop <: NodeProperty[T]](node: Node[T], clazz: Class[Prop]): Prop = {
+    node.getProperties.asScala
+      .find(clazz.isInstance(_))
+      .map(_.asInstanceOf[Prop])
+      .getOrElse(throw new NoSuchElementException(s"Node ${node.getId} does not have a property of type ${clazz.getName}"))
   }
 
   implicit def euclideanToPoint[P <: Position[P]](point: P): Point3D = point.getDimensions match {

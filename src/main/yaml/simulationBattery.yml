@@ -126,12 +126,13 @@ _programs:
           - type: RunApplicationScafiProgram
             parameters: [ *behaviorProgram, *retentionTime, *programDag ]
       - program: send
-#  - program: &batteryDevice
-#      - time-distribution: 1
-#        type: Event
-#        actions:
-#          - type: BatteryEquippedDevice
-#            parameters: [ 4200.0, 1, *componentsInstructions, 100.0, 3.7, 0.5 ] # Battery capacity, EPI (nJ), components instructions
+  ## MODULARIZATION RUNTIME --
+  - program: &modularizationRuntime
+      - time-distribution: 1
+        type: Event
+        actions:
+          - type: ModularizationRuntime
+            parameters: [ *programDag ]
 
 environment:
   type: Continuous2DEnvironment
@@ -148,11 +149,16 @@ deployments:
     parameters: [-5, -5, -4, -3, 1, 1, 0.1, 0.1]
     programs:
       - *sensors
+      - *surrogateSensors
       - *actuators
+      - *surrogateActuators
       - *knowledge
+      - *surrogateKnowledge
       - *communication
+      - *surrogateCommunication
       - *behavior
-#      - *batteryDevice
+      - *surrogateBehavior
+#      - *modularizationRuntime
     contents:
       - molecule: applicationDevice
         concentration: true

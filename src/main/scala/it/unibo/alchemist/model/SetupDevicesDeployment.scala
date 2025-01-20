@@ -2,6 +2,7 @@ package it.unibo.alchemist.model
 
 import it.unibo.alchemist.model.SetupDevicesDeployment.{APPLICATION_MOLECULE, ENERGY_SOURCE_DATA, ENERGY_SOURCE_FILE_NAME, INFRASTRUCTURAL_MOLECULE, MAIN_FILE_NAME, PROLOG_MAIN_FILE}
 import it.unibo.alchemist.model.molecules.SimpleMolecule
+import it.unibo.alchemist.utils.AlchemistScafiUtils.getNodeProperty
 import it.unibo.prolog.DeploymentGenerator.generateDeployment
 import it.unibo.prolog.{Component, PlaceDevice, Placement}
 import org.jpl7.{Atom, Query, Term, Variable}
@@ -37,8 +38,20 @@ class SetupDevicesDeployment[T, P <: Position[P]](
     if (queryResult.hasSolution) {
       val solution = queryResult.nextSolution().get("P")
       val placements = parseSolution(solution)
-      println(s"Placements: $placements")
+      environment.getNodes.iterator().asScala
+        .filter(_.contains(APPLICATION_MOLECULE))
+        .foreach { nodeDevice =>
+          val componentsPerNode = placements.filter(_.component.id == nodeDevice.getId)
+          componentsPerNode.foreach(placeComponentPerDevice(_, nodeDevice))
+        }
     }
+  }
+
+  private def placeComponentPerDevice(placement: Placement, nodeDevice: Node[T]): Unit = {
+    // TODO: fix hw allocation
+    val Placement(component, device, hw) = placement
+    val allocator = getNodeProperty(nodeDevice, classOf[AllocatorProperty[T, P]])
+    allocator.setComponentsAllocation(Map(component.fqn -> device.id))
   }
 
   private def writePrologFilesIntoTempDirectory(): Path = {
