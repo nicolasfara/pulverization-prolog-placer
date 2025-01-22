@@ -6,6 +6,10 @@ variables:
     max: 1
     step: 1
     default: 0
+  deploymentStrategy: &deploymentStrategy
+    type: ArbitraryVariable
+    parameters: [optimal, [optimal, heuristic]]
+  energySourceMix: &energySourceMix
   #------------------------------------------------------------------
   sensorsProgram: &sensorsProgram
     language: scala
@@ -41,7 +45,7 @@ seeds:
 
 launcher:
   parameters:
-    batch: [ seed ]
+    batch: [ seed, deploymentStrategy ]
 
 network-model:
   type: ConnectWithinDistancesEdge
@@ -142,7 +146,7 @@ environment:
         type: Trigger
         parameters: [0]
       type: SetupDevicesDeployment
-      parameters: []
+      parameters: [*deploymentStrategy]
 
 deployments:
 #  - type: Grid

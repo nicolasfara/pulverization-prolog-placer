@@ -20,14 +20,15 @@ case class Behavior(override val id: Int) extends Component {
   override val fqn: String = "it.unibo.alchemist.Behavior"
 }
 object Component {
-  def apply(str: String, i: Int): Component = str match {
-    case "s"  => Sensor(i)
-    case "a"  => Actuator(i)
-    case "kd" => Knowledge(i)
-    case "b"  => Behavior(i)
-    case "c"  => Communication(i)
-    case _    => throw new IllegalArgumentException(s"Unknown device type: $str")
+  def apply(componentRepr: String, id: Int): Component = componentRepr match {
+    case "s"  => Sensor(id)
+    case "a"  => Actuator(id)
+    case "kd" => Knowledge(id)
+    case "b"  => Behavior(id)
+    case "c"  => Communication(id)
+    case _    => throw new IllegalArgumentException(s"Unknown device type: $componentRepr")
   }
 }
 final case class PlaceDevice(name: String, id: Int)
 final case class Placement(component: Component, device: PlaceDevice, hardware: Double)
+final case class DeviceDeployment(deviceId: Int, carbon: Double, energy: Double, placements: List[Placement])
