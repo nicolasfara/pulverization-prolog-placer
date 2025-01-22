@@ -9,7 +9,29 @@ variables:
   deploymentStrategy: &deploymentStrategy
     type: ArbitraryVariable
     parameters: [optimal, [optimal, heuristic]]
-  energySourceMix: &energySourceMix
+  energySourceMixApplication: &energySourceMixApplication
+    type: ArbitraryVariable
+    parameters: [
+      [0.4, 0.6],
+      [
+        [0.4, 0.6]
+      ]
+    ]
+  energySourceMixInfrastructural: &energySourceMixInfrastructural
+    type: ArbitraryVariable
+    parameters: [
+      [ 0.8, 0.2 ],
+      [
+        [ 0.8, 0.2 ]
+      ]
+    ]
+  pueApplication: &pueApplication
+    type: ArbitraryVariable
+    parameters: [1.2, [1.2]]
+  pueInfrastructural: &pueInfrastructural
+    type: ArbitraryVariable
+    parameters: [1.3, [1.3]]
+
   #------------------------------------------------------------------
   sensorsProgram: &sensorsProgram
     language: scala
@@ -45,7 +67,13 @@ seeds:
 
 launcher:
   parameters:
-    batch: [ seed, deploymentStrategy ]
+    batch:
+      - seed
+      - deploymentStrategy
+      - energySourceMixApplication
+      - energySourceMixInfrastructural
+      - pueApplication
+      - pueInfrastructural
 
 network-model:
   type: ConnectWithinDistancesEdge
@@ -146,7 +174,12 @@ environment:
         type: Trigger
         parameters: [0]
       type: SetupDevicesDeployment
-      parameters: [*deploymentStrategy]
+      parameters:
+        - *deploymentStrategy
+        - *energySourceMixApplication
+        - *energySourceMixInfrastructural
+        - *pueApplication
+        - *pueInfrastructural
 
 deployments:
 #  - type: Grid

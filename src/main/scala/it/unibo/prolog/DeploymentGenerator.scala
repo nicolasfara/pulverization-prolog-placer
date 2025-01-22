@@ -9,11 +9,37 @@ object DeploymentGenerator {
       environment: Environment[T, P],
       applicationDevices: List[Node[T]],
       infrastructuralDevices: List[Node[T]],
+      energyMixApplication: List[Double],
+      energyMixInfrastructural: List[Double],
+      pueApplication: Double,
+      pueInfrastructural: Double,
   ): String = {
     val physicalApplicationDevices = applicationDevices
-      .map { node => PhysicalDevice(node.getId, environment.getPosition(node), Application) }
+      .map { node =>
+        PhysicalDevice(
+          node.getId,
+          environment.getPosition(node),
+          Application,
+          appLevel = true,
+          energyMixApplication,
+          energyMixInfrastructural,
+          pueApplication,
+          pueInfrastructural,
+        )
+      }
     val physicalInfrastructuralDevices = infrastructuralDevices
-      .map { node => PhysicalDevice(node.getId, environment.getPosition(node), Infrastructural, appLevel = false) }
+      .map { node =>
+        PhysicalDevice(
+          node.getId,
+          environment.getPosition(node),
+          Infrastructural,
+          appLevel = false,
+          energyMixApplication,
+          energyMixInfrastructural,
+          pueApplication,
+          pueInfrastructural,
+        )
+      }
     val digitalDevices = applicationDevices
       .map { node =>
         val physicalTwin = getPhysicalDeviceById(node.getId, physicalApplicationDevices)
@@ -54,7 +80,7 @@ object DeploymentGenerator {
         |:- discontiguous communication/3.
         |:- discontiguous sense/3.
         |:- discontiguous act/3.
-        |""".stripMargin
+        |""".stripMargin,
     )
 
     for {

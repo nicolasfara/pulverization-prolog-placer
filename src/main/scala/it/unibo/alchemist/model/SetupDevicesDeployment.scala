@@ -15,16 +15,20 @@ import it.unibo.prolog.{Component, DeviceDeployment, PlaceDevice, Placement}
 import org.jpl7.{Atom, Query, Term, Variable}
 
 import java.nio.file.{Files, Path, StandardCopyOption}
-import scala.jdk.CollectionConverters.IteratorHasAsScala
+import scala.jdk.CollectionConverters.{CollectionHasAsScala, IteratorHasAsScala}
 
 class SetupDevicesDeployment[T, P <: Position[P]](
     environment: Environment[T, P],
     timeDistribution: TimeDistribution[T],
     deploymentStrategy: String,
+    energyMixApplication: java.util.List[Double],
+    energyMixInfrastructural: java.util.List[Double],
+    pueApplication: Double,
+    pueInfrastructural: Double,
 ) extends AbstractGlobalReaction[T, P](environment, timeDistribution) {
 
   private lazy val placementPredicate = deploymentStrategy match {
-    case "optimal" => "optimalPlace"
+    case "optimal"   => "optimalPlace"
     case "heuristic" => "quickPLace"
   }
   private val placementPattern = """on\(([^,]+),\s*([^,]+),\s*([^)]+)\)""".r
@@ -78,7 +82,15 @@ class SetupDevicesDeployment[T, P <: Position[P]](
   private def writePrologFilesIntoTempDirectory(destinationDirectory: Path): Unit = {
     val applicationDevice = nodesContainingMolecule(APPLICATION_MOLECULE)
     val infrastructuralDevice = nodesContainingMolecule(INFRASTRUCTURAL_MOLECULE)
-    val deployment = generateDeployment(environment, applicationDevice, infrastructuralDevice)
+    val deployment = generateDeployment(
+      environment,
+      applicationDevice,
+      infrastructuralDevice,
+      energyMixApplication.asScala.toList,
+      energyMixInfrastructural.asScala.toList,
+      pueApplication,
+      pueInfrastructural,
+    )
     Files.write(destinationDirectory.resolve("data.pl"), deployment.getBytes)
   }
 

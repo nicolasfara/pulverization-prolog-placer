@@ -2,10 +2,19 @@ package it.unibo.prolog
 
 import it.unibo.alchemist.model.Position
 
-final case class PhysicalDevice[P <: Position[P]](id: Int, pos: P, kind: Kind = Application, appLevel: Boolean = true) extends Prologable {
+final case class PhysicalDevice[P <: Position[P]](
+    id: Int,
+    pos: P,
+    kind: Kind = Application,
+    appLevel: Boolean = true,
+    sourceMixApplication: List[Double],
+    sourceMixInfrastructural: List[Double],
+    pueApplication: Double,
+    pueInfrastructural: Double,
+) extends Prologable {
   import Constants._
   override val name: String = kind match {
-    case Application => s"robot$id"
+    case Application     => s"robot$id"
     case Infrastructural => s"cloud$id"
   }
 
@@ -17,8 +26,12 @@ final case class PhysicalDevice[P <: Position[P]](id: Int, pos: P, kind: Kind = 
     val availableHw = if (appLevel) totalHw else Int.MaxValue
     // -----
     // e.g. energySourceMix(robot2,[(0.1,gas),(0.8,coal),(0.1,onshorewind)])
-    val energySourceMix = if (appLevel) "[(0.4,coal), (0.6,solar)]" else "[(0.8,coal), (0.2,solar)]"
-    val pue = if (appLevel) 1.2 else 1.3 // power usage effectiveness
+    val energySourceMix = if (appLevel) {
+      s"[(${sourceMixApplication.head},coal), (${sourceMixApplication.last},solar)]"
+    } else {
+      s"[(${sourceMixInfrastructural.head},coal), (${sourceMixInfrastructural.last},solar)]"
+    }
+    val pue = if (appLevel) pueApplication else pueInfrastructural // power usage effectiveness
     // energyConsumption(N, Load, EnergyPerLoad)
     // Rumba 1.4KWh - 0.12KWh
     val energyConsumption = if (appLevel) {
