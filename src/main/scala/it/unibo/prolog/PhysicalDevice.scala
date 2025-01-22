@@ -12,8 +12,10 @@ final case class PhysicalDevice[P <: Position[P]](id: Int, pos: P, kind: Kind = 
   override def toProlog: String = {
     val j = id
     val capabilities = if (appLevel) s"[($S_NAME$j, temperature)], [($A_NAME$j, thermostate)]" else "[], []"
+    // TODO: prenderli da simulazione
     val totalHw = if (appLevel) 8 else Int.MaxValue // cloud has infinite hw
     val availableHw = if (appLevel) totalHw else Int.MaxValue
+    // -----
     // e.g. energySourceMix(robot2,[(0.1,gas),(0.8,coal),(0.1,onshorewind)])
     val energySourceMix = if (appLevel) "[(0.4,coal), (0.6,solar)]" else "[(0.8,coal), (0.2,solar)]"
     val pue = if (appLevel) 1.2 else 1.3 // power usage effectiveness
