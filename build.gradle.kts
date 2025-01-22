@@ -38,6 +38,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(libs.bundles.alchemist.scafi)
     implementation(libs.swi.prolog)
+    implementation("org.scala-lang:scala-library:2.13.16")
     if (!GraphicsEnvironment.isHeadless()) {
         implementation("it.unibo.alchemist:alchemist-swingui:${libs.versions.alchemist.get()}")
     }
