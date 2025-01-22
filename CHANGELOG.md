@@ -1,3 +1,17 @@
+## [1.2.0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.1.0...1.2.0) (2025-01-22)
+
+### Features
+
+* deploy components based on prolog specification ([452639d](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/452639d4aac20a51fb2886444d9d59efbad096c1))
+
+### Dependency updates
+
+* **deps:** update eclipse-temurin docker tag to v20 ([#17](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/17)) ([98bd2c6](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/98bd2c612d6c82b5e061bd680dde0f81c279bdd3))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.1.0 [skip ci] ([eb26309](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/eb26309f14427fa32a62317e173f6ffd01459d6d))
+
 ## [1.1.0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.0.0...1.1.0) (2025-01-17)
 
 ### Features
