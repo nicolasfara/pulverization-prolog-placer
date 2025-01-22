@@ -17,52 +17,37 @@ class SetupDevicesDeployment[T, P <: Position[P]](
 
   private val placementPattern = """on\(([^,]+),\s*([^,]+),\s*([^)]+)\)""".r
   private val componentPattern = """([a-z]+)(\d+)""".r
+  private val deviceSolutionPattern = """p\((\d+),\s*([\d.]+),\s*([\d.]+),\s*\[(.*?)]\)""".r
+  private val deviceComponentsDeployment = """on\(([^,]+),\s*([^,]+),\s*([\d.]+)\)""".r
 
   override protected def executeBeforeUpdateDistribution(): Unit = {
+    println(getDeployment)
+  }
+
+  private def getDeployment: Option[String] = {
     val destinationDirectory = Files.createTempDirectory("prolog")
     val mainFile = Files.copy(PROLOG_MAIN_FILE, destinationDirectory.resolve(MAIN_FILE_NAME), StandardCopyOption.REPLACE_EXISTING)
     Files.copy(ENERGY_SOURCE_DATA, destinationDirectory.resolve(ENERGY_SOURCE_FILE_NAME), StandardCopyOption.REPLACE_EXISTING)
-    val applicationNodes = nodesContainingMolecule(APPLICATION_MOLECULE)
-    applicationNodes.foreach { node =>
-      writePrologFilesIntoTempDirectory(destinationDirectory)
-      val consultResult = new Query(
-        "consult",
-        Array[Term](
-          new Atom(s"${mainFile.toAbsolutePath.toString}"),
-        ),
-      )
-      println(s"Prolog file ${mainFile.toAbsolutePath.toString} consulted: ${consultResult.hasSolution}")
-      val queryResult = new Query(
-        "optimalPlace",
-        Array[Term](
-          new Atom(s"d${node.getId}"),
-          new Variable("P"),
-        ),
-      )
-      if (queryResult.hasSolution) {
-        val solution = queryResult.nextSolution().get("P")
-        println(s"Solution for node ${node.getId}: $solution")
-      }
+    writePrologFilesIntoTempDirectory(destinationDirectory)
+    val consultResult = new Query(
+      "consult",
+      Array[Term](
+        new Atom(s"${mainFile.toAbsolutePath.toString}"),
+      ),
+    )
+    println(s"Prolog file ${mainFile.toAbsolutePath.toString} consulted: ${consultResult.hasSolution}")
+    val queryResult = new Query(
+      "optimalPlace",
+      Array[Term](
+        new Atom("d0"),
+        new Variable("P"),
+      ),
+    )
+    if (queryResult.hasSolution) {
+      Some(queryResult.nextSolution().get("P").toString)
+    } else {
+      None
     }
-
-//    // Query the knowledge base
-//    val queryResult = new Query(
-//      "placeAll",
-//      Array[Term](
-//        new Atom("heu"),
-//        new Variable("P"),
-//      ),
-//    )
-//    if (queryResult.hasSolution) {
-//      val solution = queryResult.nextSolution().get("P")
-//      val placements = parseSolution(solution)
-//      environment.getNodes.iterator().asScala
-//        .filter(_.contains(APPLICATION_MOLECULE))
-//        .foreach { nodeDevice =>
-//          val componentsPerNode = placements.filter(_.component.id == nodeDevice.getId)
-//          componentsPerNode.foreach(placeComponentPerDevice(_, nodeDevice))
-//        }
-//    }
   }
 
   private def placeComponentPerDevice(placement: Placement, nodeDevice: Node[T]): Unit = {
@@ -79,13 +64,21 @@ class SetupDevicesDeployment[T, P <: Position[P]](
     Files.write(destinationDirectory.resolve("data.pl"), deployment.getBytes)
   }
 
-  private def parseSolution(solution: Term): List[Placement] = {
-    val placements = for {
-      placementPattern(param1, param2, hw) <- placementPattern.findAllIn(solution.toString)
-      componentPattern(component, cId) <- componentPattern.findAllIn(param1)
-      componentPattern(device, dId) <- componentPattern.findAllIn(param2)
-    } yield { Placement(Component(component, cId.toInt), PlaceDevice(device, dId.toInt), hw.toDouble) }
-    placements.toList
+  private def parseSolution(solution: Term, node: Node[T]): List[Placement] = {
+//    val placements = for {
+//      placementPattern(param1, param2, hw) <- placementPattern.findAllIn(solution.toString)
+//      componentPattern(component, cId) <- componentPattern.findAllIn(param1)
+//      componentPattern(device, dId) <- componentPattern.findAllIn(param2)
+//    } yield { Placement(Component(component, cId.toInt), PlaceDevice(device, dId.toInt), hw.toDouble) }
+//    placements.toList
+    for {
+      deviceSolutionPattern(_, carbon, energy, components) <- deviceSolutionPattern.findAllIn(solution.toString)
+      componentsDeployment = deviceComponentsDeployment.findAllIn(components).toList.map {
+        case deviceComponentsDeployment(component, device, hw) =>
+          Placement(Component(component, 0), PlaceDevice(device, 0), hw.toDouble)
+      }
+    } ???
+    ???
   }
 
   private def nodesContainingMolecule(molecule: SimpleMolecule): List[Node[T]] =
