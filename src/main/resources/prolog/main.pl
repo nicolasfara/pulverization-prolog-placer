@@ -142,8 +142,7 @@ involvedNodes(P,Nodes,M) :-
 % 'opt' mode exploits optimal placement, 'heu' mode exploits heuristic placement
 placeAll(Mode, Placements) :- 
     findall(DigDev, digitalDevice(DigDev, _, _), Devices), % TODO: heuristics?
-    placeDigitalDevices(Mode, Devices, Placements, [], I),
-    writeln(I).
+    placeDigitalDevices(Mode, Devices, Placements, [], I).
 
 placeDigitalDevices(heu, [DigDev|Rest], [P|PRest], IOld, INew) :-
     quickPlace(DigDev, P, IOld),
