@@ -1,6 +1,6 @@
 :- set_prolog_flag(stack_limit, 16 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
-:- discontiguous link/4.
+
 :- discontiguous physicalDevice/5.
 :- discontiguous energyConsumption/3.
 :- discontiguous pue/2. 
@@ -11,6 +11,8 @@
 :- discontiguous communication/3.
 :- discontiguous sense/3.
 :- discontiguous act/3.
+:- discontiguous link/4.
+
 :- consult('energysourcedata.pl').
 :- consult('data.pl').
 
@@ -126,10 +128,11 @@ hwOK(N,Placement,HWCaps,HWReqs,I) :-
 
 % latencyOK/3 holds if the link between N and M supports the latency 
 % requirements LatReq
-latencyOK(N,M,LatReq) :- (link(N,M,Lat,_); link(M,N,Lat,_)), Lat =< LatReq.
+latencyOK(N,M,LatReq) :- (eLink(N,M,Lat,_); eLink(M,N,Lat,_)), Lat =< LatReq.
 
 %%% UTILITIES %%%
 
+eLink(X,Y,BW,Lat) :- link(X,Y,BW,Lat).
 link(X,X,0,inf). % self-link with infinite bw and null latency
 
 involvedNodes(P,Nodes,M) :-
@@ -140,11 +143,12 @@ involvedNodes(P,Nodes,M) :-
 % 'opt' mode exploits optimal placement, 'heu' mode exploits heuristic placement
 placeAll(Mode, Placements) :- 
     findall(DigDev, digitalDevice(DigDev, _, _), Devices), % TODO: heuristics?
-    placeDigitalDevices(Mode, Devices, Placements, I).
-
-placeDigitalDevices(Mode, Devices, Placements, I) :-
     placeDigitalDevices(Mode, Devices, Placements, [], I),
     writeln(I).
+
+% placeDigitalDevices(Mode, Devices, Placements, I) :-
+%     placeDigitalDevices(Mode, Devices, Placements, [], I),
+%     writeln(I).
 
 placeDigitalDevices(heu, [DigDev|Rest], [P|PRest], IOld, INew) :-
     quickPlace(DigDev, P, IOld),
@@ -152,10 +156,7 @@ placeDigitalDevices(heu, [DigDev|Rest], [P|PRest], IOld, INew) :-
     placeDigitalDevices(heu,Rest,PRest,ITmp,INew).
 placeDigitalDevices(opt, [DigDev|Rest], [P|PRest], IOld, INew) :-
     optimalPlace(DigDev, P, IOld),
-    writeln('Optimal placement: '), writeln(P),
-    writeln('Infrastructure: '), writeln(IOld),
     updatedInfrastructure(P, IOld, ITmp),
-    writeln('Updated infrastructure: '), writeln(ITmp),
     placeDigitalDevices(opt,Rest,PRest,ITmp,INew).
 placeDigitalDevices(_,[],[],I,I).
 
