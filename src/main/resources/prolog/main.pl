@@ -21,8 +21,8 @@ maxNodes(3).
 
 % optimalPlace/3 finds one of the placements with  
 % minimal number of nodes, lowest carbon emissions, and last, lowest energy consumption.
-optimalPlace(DigDev,p(OptN,OptC,OptE,OptP)) :-
-    findall(p(N,C,E,P), (place(DigDev,P), footprint(P,E,C), involvedNodes(P,_,N)), Placements),
+optimalPlace(DigDev,p(DigDev,OptN,OptC,OptE,OptP),I) :-
+    findall(p(N,C,E,P), (place(DigDev,P,I), footprint(P,E,C), involvedNodes(P,_,N)), Placements),
     sort(Placements, [p(OptN,OptC,OptE,OptP)|_]),
     maxEnergy(MaxE), maxCarbon(MaxC), maxNodes(MaxN), OptE =< MaxE, OptC =< MaxC, OptN =< MaxN.
 
@@ -58,26 +58,27 @@ nodeEmissions([],_,0).
 %       - C is the component id,
 %       - N is the id of its deployment node, 
 %       - H is the amount of hardware that C requires at N, and
-place(DigDev, Placement) :-
+place(DigDev, Placement, I) :-
     digitalDevice(DigDev, K, Components),
-    placeKnowledge(K,N,KonN),
-    placeComponents(Components,N,[KonN],Placement),
-    connectivityOk(Placement).
+    placeKnowledge(K,N,KonN,I),
+    placeComponents(Components,N,[KonN],Placement,I).
+    % connectivityOk(Placement). % see notes below
 
 % placeKnowledge/2 places a knowledge component K onto a node N that
 % supports its hardware requirements.
-placeKnowledge(K,N,on(K,N,HWReqs)) :-
+placeKnowledge(K,N,on(K,N,HWReqs), I) :-
     knowledge(K, HWReqs),
     physicalDevice(N, HWCaps, _, _, _),
-    HWReqs =< HWCaps.
+    ( member(used(N,HWUsed), I); \+member(used(N,_), I), HWUsed = 0 ),
+    HWReqs =< HWCaps - HWUsed.
 
 % hPlace/3 finds a placement of a digital device DigDev that satisfies
 % all constraints and does not exceed energy and carbon budgets.
 % It returns the number M of involved Nodes, and their list.
-quickPlace(DigDev, p(M,C,E,Placement)) :-
+quickPlace(DigDev, p(DigDev,M,C,E,Placement), I) :-
     digitalDevice(DigDev, K, Components),
-    placeKnowledge(K, N, KonN),
-    placeComponents(Components,N,[KonN],Placement),
+    placeKnowledge(K, N, KonN, I),
+    placeComponents(Components,N,[KonN],Placement, I),
     footprint(Placement,E,C), involvedNodes(Placement,_,M),
     maxEnergy(MaxE), maxCarbon(MaxC), maxNodes(MaxM), 
     E =< MaxE, C =< MaxC, M =< MaxM.
@@ -86,46 +87,42 @@ quickPlace(DigDev, p(M,C,E,Placement)) :-
 % that support their hardware requirements, and the requirements on
 % latency towards the node where the component K is placed. 
 % Note: cumulative hardware consumption is checked incrementally
-placeComponents([C|Cs],NK,Placement,NewPlacement):-
+placeComponents([C|Cs],NK,Placement,NewPlacement,I):-
     member(on(_,N,_), Placement), physicalDevice(N, HWCaps, _, Sensors, Actuators),
     (
         (sense(C, HWReqs, LatToK), member((C,_), Sensors)); (act(C, HWReqs, LatToK), member((C,_), Actuators))
     ),
     latencyOK(N,NK,LatToK),
-    hwOK(N,Placement,HWCaps,HWReqs),
-    placeComponents(Cs,NK,[on(C,N,HWReqs)|Placement],NewPlacement).
-placeComponents([C|Cs],NK,Placement,NewPlacement):-
+    hwOK(N,Placement,HWCaps,HWReqs,I),
+    placeComponents(Cs,NK,[on(C,N,HWReqs)|Placement],NewPlacement,I).
+placeComponents([C|Cs],NK,Placement,NewPlacement,I):-
     physicalDevice(N, HWCaps, _, Sensors, Actuators), \+ member(on(_,N,_), Placement),
     (
         (sense(C, HWReqs, LatToK), member((C,_), Sensors)); (act(C, HWReqs, LatToK), member((C,_), Actuators))
     ),
     latencyOK(N,NK,LatToK),
-    hwOK(N,Placement,HWCaps,HWReqs),
-    placeComponents(Cs,NK,[on(C,N,HWReqs)|Placement],NewPlacement).
-placeComponents([C|Cs],NK,Placement,NewPlacement):-
+    hwOK(N,Placement,HWCaps,HWReqs,I),
+    placeComponents(Cs,NK,[on(C,N,HWReqs)|Placement],NewPlacement,I).
+placeComponents([C|Cs],NK,Placement,NewPlacement,I):-
     member(on(_,N,_), Placement), physicalDevice(N, HWCaps, _, _, _),
     (behaviour(C, HWReqs, LatToK); communication(C, HWReqs, LatToK)),
     latencyOK(N,NK,LatToK),
-    hwOK(N,Placement,HWCaps,HWReqs),
-    placeComponents(Cs,NK,[on(C,N,HWReqs)|Placement], NewPlacement).
-placeComponents([C|Cs],NK,Placement,NewPlacement):-
+    hwOK(N,Placement,HWCaps,HWReqs,I),
+    placeComponents(Cs,NK,[on(C,N,HWReqs)|Placement],NewPlacement,I).
+placeComponents([C|Cs],NK,Placement,NewPlacement,I):-
     physicalDevice(N, HWCaps, _, _, _), \+ member(on(_,N,_), Placement),
     (behaviour(C, HWReqs, LatToK); communication(C, HWReqs, LatToK)),
     latencyOK(N,NK,LatToK),
-    hwOK(N,Placement,HWCaps,HWReqs),
-    placeComponents(Cs,NK,[on(C,N,HWReqs)|Placement], NewPlacement).
-placeComponents([],_,P,P).
-
-% Checks that all components of a digital device can communicate according to a chosen Placement
-% TODO: si può "affinare"?
-connectivityOk(Placement) :-
-    \+ (member(on(C1,N1,_), Placement), member(on(C2,N2,_), Placement), dif(C1,C2), \+ link(N1,N2,_,_)).
-
+    hwOK(N,Placement,HWCaps,HWReqs,I),
+    placeComponents(Cs,NK,[on(C,N,HWReqs)|Placement], NewPlacement,I).
+placeComponents([],_,P,P,_).
 
 % hwOK/4 holds if all components placed at node N by Placement do not exceed 
 % the current capacity of N when adding a new component that requires HWReqs.
-hwOK(N,Placement,HWCaps,HWReqs) :-
-    findall(H, member(on(_,N,H),Placement), Hs), sumlist(Hs,UsedHW), HWReqs =< HWCaps - UsedHW.
+hwOK(N,Placement,HWCaps,HWReqs,I) :-
+    findall(H, member(on(_,N,H),Placement), Hs), sumlist(Hs,HWAlloc), 
+    ( member(used(N,UsedHW), I); \+ member(used(N,_), I), UsedHW = 0 ),
+    HWReqs =< HWCaps - HWAlloc - UsedHW.
 
 % latencyOK/3 holds if the link between N and M supports the latency 
 % requirements LatReq
@@ -136,20 +133,51 @@ latencyOK(N,M,LatReq) :- (link(N,M,Lat,_); link(M,N,Lat,_)), Lat =< LatReq.
 link(X,X,0,inf). % self-link with infinite bw and null latency
 
 involvedNodes(P,Nodes,M) :-
-    findall(N, member(on(_,N,_), P), Ns), list_to_set(Ns, Nodes), %writeln(Ns),
+    findall(N, member(on(_,N,_), P), Ns), list_to_set(Ns, Nodes), 
     length(Nodes, M).
 
+% placeAll/2 finds all the possible placements of a digital device
+% 'opt' mode exploits optimal placement, 'heu' mode exploits heuristic placement
+placeAll(Mode, Placements) :- 
+    findall(DigDev, digitalDevice(DigDev, _, _), Devices), % TODO: heuristics?
+    placeDigitalDevices(Mode, Devices, Placements, I).
 
-% % placeAll/2 finds all the possible placements of a digital device
-% % 'opt' mode exploits optimal placement, 'heu' mode exploits heuristic placement
-% placeAll(Mode, Placements) :- 
-%     findall(DigDev, digitalDevice(DigDev, _, _), Devices), % TODO: heuristics?
-%     placeDigitalDevices(Mode, Devices, Placements).
+placeDigitalDevices(Mode, Devices, Placements, I) :-
+    placeDigitalDevices(Mode, Devices, Placements, [], I),
+    writeln(I).
 
-% placeDigitalDevices(heu, [DigDev|Rest], [P|PRest]) :-
-%     hPlace(DigDev, P, _),
-%     placeDigitalDevices(heu,Rest,PRest).
-% placeDigitalDevices(opt, [DigDev|Rest], [P|PRest]) :-
-%     optimalPlace(DigDev, P),
-%     placeDigitalDevices(opt,Rest,PRest).
-% placeDigitalDevices(_,[],[]).
+placeDigitalDevices(heu, [DigDev|Rest], [P|PRest], IOld, INew) :-
+    quickPlace(DigDev, P, IOld),
+    updatedInfrastructure(P, IOld, ITmp),
+    placeDigitalDevices(heu,Rest,PRest,ITmp,INew).
+placeDigitalDevices(opt, [DigDev|Rest], [P|PRest], IOld, INew) :-
+    optimalPlace(DigDev, P, IOld),
+    writeln('Optimal placement: '), writeln(P),
+    writeln('Infrastructure: '), writeln(IOld),
+    updatedInfrastructure(P, IOld, ITmp),
+    writeln('Updated infrastructure: '), writeln(ITmp),
+    placeDigitalDevices(opt,Rest,PRest,ITmp,INew).
+placeDigitalDevices(_,[],[],I,I).
+
+updatedInfrastructure(p(_,_,_,_,P), IOld, INew) :-
+    involvedNodes(P,Nodes,_), nodesUsage(Nodes, P, IOld, [], INew).
+    
+nodesUsage([N|Ns], P, I, IOld, INew) :-
+    findall(H, member(on(_,N,H), P), Hs), sum_list(Hs,PAllocaAtN), 
+    \+ member(used(N,_), I), 
+    nodesUsage(Ns, P, I, [used(N,PAllocaAtN)|IOld], INew).
+nodesUsage([N|Ns], P, I, IOld, INew) :-
+    findall(H, member(on(_,N,H), P), Hs), sum_list(Hs,PAllocaAtN),
+    member(used(N,UsedHW), I),
+    NewUsedHW is UsedHW + PAllocaAtN,
+    nodesUsage(Ns, P, I, [used(N,NewUsedHW)|IOld], INew).
+nodesUsage([],_,_,I,I).
+
+
+
+% Checks that all components of a digital device can communicate according to a chosen Placement
+% Might be useful for finer-grained checks on newer DAG-based pulverisation models. 
+% In this settings, we assume that all components can communicate through the knowledge component 
+% to which all other components connect (see predicate latencyOK/3 in placeComponents/4). 
+% %     connectivityOk(Placement) :-
+% %         \+ (member(on(C1,N1,_), Placement), member(on(C2,N2,_), Placement), dif(C1,C2), \+ link(N1,N2,_,_)).
