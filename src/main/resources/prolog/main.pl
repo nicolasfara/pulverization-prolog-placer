@@ -17,36 +17,37 @@
 :- consult('data.pl').
 
 % Energy and carbon budget per single digital device placement
-maxEnergy(2).
-maxCarbon(2).
-maxNodes(3).
+maxEnergy(20).
+maxCarbon(20).
+maxNodes(30).
 
 % optimalPlace/3 finds one of the placements with  
 % minimal number of nodes, lowest carbon emissions, and last, lowest energy consumption.
 optimalPlace(DigDev,p(DigDev,OptN,OptC,OptE,OptP),I) :-
-    findall(r(N,C,E,P), (place(DigDev,P,I), footprint(P,E,C), involvedNodes(P,_,N)), Placements),
+    findall(r(N,C,E,P), (place(DigDev,P,I), footprint(P,E,C,I), involvedNodes(P,_,N)), Placements),
     sort(Placements, [r(OptN,OptC,OptE,OptP)|_]),
     maxEnergy(MaxE), maxCarbon(MaxC), maxNodes(MaxN), OptE =< MaxE, OptC =< MaxC, OptN =< MaxN.
 
-footprint(Placement,Energy,Carbon) :-
+footprint(Placement,Energy,Carbon,I) :-
     findall(N, member(on(_,N,_), Placement), Ns), sort(Ns, Nodes),
-    hardwareFootprint(Nodes,Placement,Energy,Carbon).
+    hardwareFootprint(Nodes,Placement,Energy,Carbon,I).
 
-hardwareFootprint([N|Ns],Placement,Energy,Carbon) :-
-    hardwareFootprint(Ns,Placement,EnergyNs,CarbonNs),
-    nodeEnergy(N,Placement,EnergyN), 
+hardwareFootprint([N|Ns],Placement,Energy,Carbon,I) :-
+    hardwareFootprint(Ns,Placement,EnergyNs,CarbonNs,I),
+    nodeEnergy(N,Placement,EnergyN,I), 
     energySourceMix(N,Sources), nodeEmissions(Sources,EnergyN,CarbonN),
     Energy is EnergyN+EnergyNs, Carbon is CarbonN+CarbonNs.
-hardwareFootprint([],_,0,0).
+hardwareFootprint([],_,0,0,_).
 
 % Considers how much the Placement increases the energy consumption of node N
 % w.r.t. the energy consumption of N before the Placement
 % Note: some placements may "consume" null energy as they do not alter enough the infrastucture usage
-nodeEnergy(N,Placement,Energy):-
-    physicalDevice(N, HW, TotHW, _, _), pue(N,PUE), 
-    OldL is 100 * (TotHW - HW) / TotHW, energyConsumption(N,OldL,OldE),
+nodeEnergy(N,Placement,Energy,I):-
+    physicalDevice(N, FreeHW, TotHW, _, _), pue(N,PUE),
+    (member(used(N,UsedHW), I); \+member(used(N,_), I), UsedHW = 0), 
+    OldL is 100 * (TotHW - FreeHW + UsedHW) / TotHW, energyConsumption(N,OldL,OldE),
     findall(H,member(on(_,N,H),Placement),HWs), sum_list(HWs,PHW),
-    NewL is 100 * (TotHW - HW + PHW) / TotHW, energyConsumption(N,NewL,NewE),
+    NewL is 100 * (TotHW - FreeHW + PHW + UsedHW) / TotHW, energyConsumption(N,NewL,NewE),
     Energy is (NewE - OldE) * PUE.
 
 nodeEmissions([(P,S)|Srcs],Energy,Carbon) :-
@@ -81,7 +82,7 @@ quickPlace(DigDev, p(DigDev,M,C,E,Placement), I) :-
     digitalDevice(DigDev, K, Components),
     placeKnowledge(K, N, KonN, I),
     placeComponents(Components,N,[KonN],Placement, I),
-    footprint(Placement,E,C), involvedNodes(Placement,_,M),
+    footprint(Placement,E,C,I), involvedNodes(Placement,_,M),
     maxEnergy(MaxE), maxCarbon(MaxC), maxNodes(MaxM), 
     E =< MaxE, C =< MaxC, M =< MaxM.
 
@@ -142,7 +143,12 @@ involvedNodes(P,Nodes,M) :-
 % 'opt' mode exploits optimal placement, 'heu' mode exploits heuristic placement
 placeAll(Mode, Placements) :- 
     findall(DigDev, digitalDevice(DigDev, _, _), Devices), % TODO: heuristics?
-    placeDigitalDevices(Mode, Devices, Placements, [], I).
+    placeDigitalDevices(Mode, Devices, Placements, [], I),
+    findall(C, member(p(_,_,C,_,_), Placements), Cs), sum_list(Cs, TotC),
+    findall(E, member(p(_,_,_,E,_), Placements), Es), sum_list(Es, TotE),
+    write('Total Carbon: '), write(TotC), nl, write('Total Energy: '), write(TotE), nl,
+    findall(N, member(p(_,N,_,_,_), Placements), Ns), length(Placements, M), sum_list(Ns, TotN),
+    write('Avg nodes per placement: '), AvgN is TotN / M, write(AvgN), nl.
 
 placeDigitalDevices(heu, [DigDev|Rest], [P|PRest], IOld, INew) :-
     quickPlace(DigDev, P, IOld),

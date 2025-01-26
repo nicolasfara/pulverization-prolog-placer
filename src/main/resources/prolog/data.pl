@@ -1,20 +1,18 @@
 physicalDevice(robot0, 8, 8, [(s0, temperature)], [(a0, thermostate)]).
-energyConsumption(robot0, _, 1.4).
 energySourceMix(robot0, [(0.4,coal), (0.6,solar)]).
 pue(robot0, 1.2).
 link(robot0, robot1, 10, 0.9890515424521616).
 
 physicalDevice(robot1, 8, 8, [(s1, temperature)], [(a1, thermostate)]).
-energyConsumption(robot1, _, 1.4).
 energySourceMix(robot1, [(0.4,coal), (0.6,solar)]).
 pue(robot1, 1.2).
 link(robot1, robot0, 10, 0.9890515424521616).
 
-physicalDevice(cloud2, 2147483647, 2147483647, [], []).
+physicalDevice(cloud2, 10, 130, [], []).
 
-energyConsumption(cloud2, L, 0.12) :- L < 2.
-energyConsumption(cloud2, L, EpL) :- L >= 2, EpL is 0.12 + L*0.2, EpL =< 0.2.
-energyConsumption(cloud2, L, 0.2) :- L >= 2, EpL is 0.12 + L*0.2, EpL > 0.2.
+energyConsumption(_, L, 0.1) :- L < 10.
+energyConsumption(_, L, 0.2) :- L >= 10, L < 40.
+energyConsumption(_, L, 0.3) :- L >= 40.
 
 energySourceMix(cloud2, [(0.8,coal), (0.2,solar)]).
 pue(cloud2, 1.3).
@@ -22,10 +20,6 @@ link(cloud2, robot0, 100, 17.48721490176734).
 link(cloud2, robot1, 100, 16.85728022217271).
 
 physicalDevice(cloud3, 2147483647, 2147483647, [], []).
-
-energyConsumption(cloud3, L, 0.12) :- L < 2.
-energyConsumption(cloud3, L, EpL) :- L >= 2, EpL is 0.12 + L*0.2, EpL =< 0.2.
-energyConsumption(cloud3, L, 0.2) :- L >= 2, EpL is 0.12 + L*0.2, EpL > 0.2.
 
 energySourceMix(cloud3, [(0.8,coal), (0.2,solar)]).
 pue(cloud3, 1.3).
