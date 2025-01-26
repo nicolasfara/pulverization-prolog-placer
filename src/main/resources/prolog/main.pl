@@ -24,8 +24,8 @@ maxNodes(3).
 % optimalPlace/3 finds one of the placements with  
 % minimal number of nodes, lowest carbon emissions, and last, lowest energy consumption.
 optimalPlace(DigDev,p(DigDev,OptN,OptC,OptE,OptP),I) :-
-    findall(p(N,C,E,P), (place(DigDev,P,I), footprint(P,E,C), involvedNodes(P,_,N)), Placements),
-    sort(Placements, [p(OptN,OptC,OptE,OptP)|_]),
+    findall(r(N,C,E,P), (place(DigDev,P,I), footprint(P,E,C), involvedNodes(P,_,N)), Placements),
+    sort(Placements, [r(OptN,OptC,OptE,OptP)|_]),
     maxEnergy(MaxE), maxCarbon(MaxC), maxNodes(MaxN), OptE =< MaxE, OptC =< MaxC, OptN =< MaxN.
 
 footprint(Placement,Energy,Carbon) :-
@@ -136,8 +136,7 @@ eLink(X,Y,BW,Lat) :- link(X,Y,BW,Lat).
 link(X,X,0,inf). % self-link with infinite bw and null latency
 
 involvedNodes(P,Nodes,M) :-
-    findall(N, member(on(_,N,_), P), Ns), list_to_set(Ns, Nodes), 
-    length(Nodes, M).
+    findall(N, member(on(_,N,_), P), Ns), list_to_set(Ns, Nodes), length(Nodes, M).
 
 % placeAll/2 finds all the possible placements of a digital device
 % 'opt' mode exploits optimal placement, 'heu' mode exploits heuristic placement
@@ -145,10 +144,6 @@ placeAll(Mode, Placements) :-
     findall(DigDev, digitalDevice(DigDev, _, _), Devices), % TODO: heuristics?
     placeDigitalDevices(Mode, Devices, Placements, [], I),
     writeln(I).
-
-% placeDigitalDevices(Mode, Devices, Placements, I) :-
-%     placeDigitalDevices(Mode, Devices, Placements, [], I),
-%     writeln(I).
 
 placeDigitalDevices(heu, [DigDev|Rest], [P|PRest], IOld, INew) :-
     quickPlace(DigDev, P, IOld),
@@ -160,18 +155,19 @@ placeDigitalDevices(opt, [DigDev|Rest], [P|PRest], IOld, INew) :-
     placeDigitalDevices(opt,Rest,PRest,ITmp,INew).
 placeDigitalDevices(_,[],[],I,I).
 
-updatedInfrastructure(p(_,_,_,_,P), IOld, INew) :-
-    involvedNodes(P,Nodes,_), nodesUsage(Nodes, P, IOld, [], INew).
+updatedInfrastructure(p(_,_,_,_,P), I, INew) :-
+    involvedNodes(P,Nodes,_), nodesUsage(Nodes, P, I, I, INew).
     
 nodesUsage([N|Ns], P, I, IOld, INew) :-
-    findall(H, member(on(_,N,H), P), Hs), sum_list(Hs,PAllocaAtN), 
     \+ member(used(N,_), I), 
+    findall(H, member(on(_,N,H), P), Hs), sum_list(Hs,PAllocaAtN), 
     nodesUsage(Ns, P, I, [used(N,PAllocaAtN)|IOld], INew).
 nodesUsage([N|Ns], P, I, IOld, INew) :-
-    findall(H, member(on(_,N,H), P), Hs), sum_list(Hs,PAllocaAtN),
     member(used(N,UsedHW), I),
+    findall(H, member(on(_,N,H), P), Hs), sum_list(Hs,PAllocaAtN),
     NewUsedHW is UsedHW + PAllocaAtN,
-    nodesUsage(Ns, P, I, [used(N,NewUsedHW)|IOld], INew).
+    select(used(N,UsedHW), IOld, used(N,NewUsedHW), ITmp),
+    nodesUsage(Ns, P, I, ITmp, INew).
 nodesUsage([],_,_,I,I).
 
 
