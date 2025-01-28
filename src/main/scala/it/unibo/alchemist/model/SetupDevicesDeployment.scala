@@ -28,8 +28,8 @@ class SetupDevicesDeployment[T, P <: Position[P]](
 ) extends AbstractGlobalReaction[T, P](environment, timeDistribution) {
 
   private lazy val placementPredicate = deploymentStrategy match {
-    case "optimal"   => "optimalPlace"
-    case "heuristic" => "quickPLace"
+    case "optimal"   => "opt"
+    case "heuristic" => "heu"
   }
   private val placementPattern = """on\(([^,]+),\s*([^,]+),\s*([^)]+)\)""".r
   private val componentPattern = """([a-z]+)(\d+)""".r
@@ -59,9 +59,9 @@ class SetupDevicesDeployment[T, P <: Position[P]](
     )
     println(s"Prolog file ${mainFile.toAbsolutePath.toString} consulted: ${consultResult.hasSolution}")
     val queryResult = new Query(
-      placementPredicate,
+      "placeAll",
       Array[Term](
-        new Atom("d0"),
+        new Atom(placementPredicate),
         new Variable("P"),
       ),
     )

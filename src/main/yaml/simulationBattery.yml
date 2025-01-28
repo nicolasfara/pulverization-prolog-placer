@@ -75,9 +75,9 @@ launcher:
       - pueApplication
       - pueInfrastructural
 
-network-model:
-  type: ConnectWithinDistancesEdge
-  parameters: [3]
+#network-model:
+#  type: ConnectWithinDistancesEdge
+#  parameters: [6]
 
 _constants:
   retentionTime: &retentionTime 25.0
@@ -182,10 +182,12 @@ environment:
         - *pueInfrastructural
 
 deployments:
-#  - type: Grid
-#    parameters: [-5, -5, -4, -3, 1, 1, 0.1, 0.1]
-  - type: Point
-    parameters: [0, 0]
+  - type: Grid
+    parameters: [-5, -5, 5, 5, 1, 1, 0.1, 0.1]
+#  - type: Point
+#    parameters: [0, 0]
+#  - type: GraphStreamDeployment
+#    parameters: [ 50, "RandomEuclidean", 5 ]
     programs:
       - *sensors
       - *surrogateSensors
@@ -206,8 +208,8 @@ deployments:
         parameters: [ *programDag ]
   - type: SpecificPositions # Edge Servers
     parameters: [
-      [ 8.2152226, 6.3816613 ],
-      [ 8.2366507, 6.3838339 ],
+      [ 18.2152226, 16.3816613 ],
+      [ 18.2366507, 16.3838339 ],
 #      [ 8.2146077, 6.3485146 ],
 #      [ 8.2055562, 6.3778687 ],
 #      [ 8.1924837, 6.3458967 ],

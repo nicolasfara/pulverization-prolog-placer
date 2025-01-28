@@ -22,8 +22,8 @@ final case class PhysicalDevice[P <: Position[P]](
     val j = id
     val capabilities = if (appLevel) s"[($S_NAME$j, temperature)], [($A_NAME$j, thermostate)]" else "[], []"
     // TODO: prenderli da simulazione
-    val totalHw = if (appLevel) 8 else Int.MaxValue // cloud has infinite hw
-    val availableHw = if (appLevel) totalHw else Int.MaxValue
+    val totalHw = if (appLevel) 4 else 20 // cloud has infinite hw
+    val availableHw = if (appLevel) totalHw else 20
     // -----
     // e.g. energySourceMix(robot2,[(0.1,gas),(0.8,coal),(0.1,onshorewind)])
     val energySourceMix = if (appLevel) {
@@ -41,9 +41,9 @@ final case class PhysicalDevice[P <: Position[P]](
       val energyPerLoadLow = 0.12
       val energyPerLoadHigh = 0.20
       s"""
-         |energyConsumption($name, L, $energyPerLoadLow) :- L < $loadThreshold.
-         |energyConsumption($name, L, EpL) :- L >= $loadThreshold, EpL is $energyPerLoadLow + L*$energyPerLoadHigh, EpL =< $energyPerLoadHigh.
-         |energyConsumption($name, L, $energyPerLoadHigh) :- L >= $loadThreshold, EpL is $energyPerLoadLow + L*$energyPerLoadHigh, EpL > $energyPerLoadHigh.
+         |energyConsumption($name, L, 0.1) :- L < 10.
+         |energyConsumption($name, L, 0.2) :- L >= 10, L < 40.
+         |energyConsumption($name, L, 0.3) :- L >= 40.
          |""".stripMargin
     }
     s"""
