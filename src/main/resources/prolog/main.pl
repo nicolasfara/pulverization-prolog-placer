@@ -23,9 +23,9 @@ maxNodes(30).
 
 % optimalPlace/3 finds one of the placements with  
 % minimal number of nodes, lowest carbon emissions, and last, lowest energy consumption.
-optimalPlace(DigDev,p(DigDev,OptN,OptC,OptE,OptP),I) :-
-    findall(r(N,C,E,P), (place(DigDev,P,I), footprint(P,E,C,I), involvedNodes(P,_,N)), Placements),
-    sort(Placements, [r(OptN,OptC,OptE,OptP)|_]),
+optimalPlace(DigDev,p(DigDev,OptC,OptN,OptE,OptP),I) :-
+    findall(r(C,N,E,P), (place(DigDev,P,I), footprint(P,E,C,I), involvedNodes(P,_,N)), Placements),
+    sort(Placements, SortedPs), SortedPs=[r(OptC,OptN,OptE,OptP)|Ps],
     maxEnergy(MaxE), maxCarbon(MaxC), maxNodes(MaxN), OptE =< MaxE, OptC =< MaxC, OptN =< MaxN.
 
 footprint(Placement,Energy,Carbon,I) :-
@@ -78,7 +78,7 @@ placeKnowledge(K,N,on(K,N,HWReqs), I) :-
 % hPlace/3 finds a placement of a digital device DigDev that satisfies
 % all constraints and does not exceed energy and carbon budgets.
 % It returns the number M of involved Nodes, and their list.
-quickPlace(DigDev, p(DigDev,M,C,E,Placement), I) :-
+quickPlace(DigDev, p(DigDev,C,M,E,Placement), I) :-
     digitalDevice(DigDev, K, Components),
     placeKnowledge(K, N, KonN, I),
     placeComponents(Components,N,[KonN],Placement, I),
@@ -143,11 +143,12 @@ involvedNodes(P,Nodes,M) :-
 % 'opt' mode exploits optimal placement, 'heu' mode exploits heuristic placement
 placeAll(Mode, Placements) :- 
     findall(DigDev, digitalDevice(DigDev, _, _), Devices), % TODO: heuristics?
-    placeDigitalDevices(Mode, Devices, Placements, [], I),
-    findall(C, member(p(_,_,C,_,_), Placements), Cs), sum_list(Cs, TotC),
+    placeDigitalDevices(Mode, Devices, Placements, [], _),
+    % p(DigDev,C,M,E,Placement)
+    findall(C, member(p(_,C,_,_,_), Placements), Cs), sum_list(Cs, TotC),
     findall(E, member(p(_,_,_,E,_), Placements), Es), sum_list(Es, TotE),
     write('Total Carbon: '), write(TotC), nl, write('Total Energy: '), write(TotE), nl,
-    findall(N, member(p(_,N,_,_,_), Placements), Ns), length(Placements, M), sum_list(Ns, TotN),
+    findall(N, member(p(_,_,N,_,_), Placements), Ns), length(Placements, M), sum_list(Ns, TotN),
     write('Avg nodes per placement: '), AvgN is TotN / M, write(AvgN), nl.
 
 placeDigitalDevices(heu, [DigDev|Rest], [P|PRest], IOld, INew) :-
