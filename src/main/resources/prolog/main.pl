@@ -25,7 +25,7 @@ maxNodes(30).
 % minimal number of nodes, lowest carbon emissions, and last, lowest energy consumption.
 optimalPlace(DigDev,p(DigDev,OptC,OptN,OptE,OptP),I) :-
     findall(r(C,N,E,P), (place(DigDev,P,I), footprint(P,E,C,I), involvedNodes(P,_,N)), Placements),
-    sort(Placements, SortedPs), SortedPs=[r(OptC,OptN,OptE,OptP)|Ps],
+    sort(Placements, SortedPs), SortedPs=[r(OptC,OptN,OptE,OptP)|_],
     maxEnergy(MaxE), maxCarbon(MaxC), maxNodes(MaxN), OptE =< MaxE, OptC =< MaxC, OptN =< MaxN.
 
 footprint(Placement,Energy,Carbon,I) :-

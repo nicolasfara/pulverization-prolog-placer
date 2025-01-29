@@ -2,8 +2,6 @@ package it.unibo.prolog
 
 import it.unibo.alchemist.model.{Environment, Node, Position}
 
-import scala.jdk.CollectionConverters.IteratorHasAsScala
-
 object DeploymentGenerator {
   def generateDeployment[T, P <: Position[P]](
       environment: Environment[T, P],
@@ -13,18 +11,23 @@ object DeploymentGenerator {
       energyMixInfrastructural: List[Double],
       pueApplication: Double,
       pueInfrastructural: Double,
+      availableHwApplication: Int,
+      availableHwInfrastructural: Int,
   ): String = {
     val physicalApplicationDevices = applicationDevices
       .map { node =>
         PhysicalDevice(
           node.getId,
           environment.getPosition(node),
+          environment,
           Application,
           appLevel = true,
           energyMixApplication,
           energyMixInfrastructural,
           pueApplication,
           pueInfrastructural,
+          availableHwApplication,
+          availableHwInfrastructural,
         )
       }
     val physicalInfrastructuralDevices = infrastructuralDevices
@@ -32,12 +35,15 @@ object DeploymentGenerator {
         PhysicalDevice(
           node.getId,
           environment.getPosition(node),
+          environment,
           Infrastructural,
           appLevel = false,
           energyMixApplication,
           energyMixInfrastructural,
           pueApplication,
           pueInfrastructural,
+          availableHwApplication,
+          availableHwInfrastructural,
         )
       }
     val digitalDevices = applicationDevices
@@ -46,30 +52,6 @@ object DeploymentGenerator {
           .getOrElse(throw new RuntimeException(s"Physical device not found for node ${node.getId}"))
         Device(node.getId, physicalTwin)
       }
-
-    def physicalLinks(physicalDevice: PhysicalDevice[P]): Set[PhysicalDevice[P]] = {
-      val node = environment.getNodeByID(physicalDevice.id)
-      environment
-        .getNeighborhood(node)
-        .getNeighbors
-        .iterator()
-        .asScala
-        .map { neighbor => getPhysicalDeviceById(neighbor.getId, physicalApplicationDevices) }
-        .collect { case Some(neighbor) => neighbor }
-        .toSet
-    }
-
-    def applicationLinks(device: Device[P]): Set[Device[P]] = {
-      val node = environment.getNodeByID(device.id)
-      environment
-        .getNeighborhood(node)
-        .getNeighbors
-        .iterator()
-        .asScala
-        .map { neighbor => digitalDevices.find(_.id == neighbor.getId) }
-        .collect { case Some(neighbor) => neighbor }
-        .toSet
-    }
 
     val prologProgram = new StringBuilder()
     prologProgram.append(
@@ -88,43 +70,25 @@ object DeploymentGenerator {
     } {
       prologProgram.append(physicalDevice.toProlog)
       prologProgram.append(LINE_SEPARATOR)
-      val physicalNeighbors = physicalLinks(physicalDevice)
-      for {
-        neighbor <- physicalNeighbors
-      } {
-        // Assume the latency is the distance between the two nodes in the simulation -- TODO: double check
-        val latency =
-          environment.getDistanceBetweenNodes(
-            environment.getNodeByID(physicalDevice.id),
-            environment.getNodeByID(neighbor.id),
-          )
-        // Different bandwidth based on the device kind -- TODO: double check constants
-        val bandwidth = if (physicalDevice.appLevel) 10 else 100
-        prologProgram.append(s"link(${physicalDevice.name}, ${neighbor.name}, $bandwidth, $latency).")
-        prologProgram.append(LINE_SEPARATOR)
-      }
     }
+
+    prologProgram.append(s"""
+        |energyConsumption(_, L, 0.1) :- L < 10.
+        |energyConsumption(_, L, 0.2) :- L >= 10, L < 40.
+        |energyConsumption(_, L, 0.3) :- L >= 40.
+        |""".stripMargin)
 
     for {
       device <- digitalDevices
     } {
       prologProgram.append(device.toProlog)
       prologProgram.append(LINE_SEPARATOR)
-      // TODO: check the commented code
-      /*
-      val logicalNeighbors = applicationLinks(device)
-      for {
-        neighbor <- logicalNeighbors
-      } {
-        prologProgram.append(s"link(robot${device.id}, robot${neighbor.id}, 4, 50).") ++ LINE_SEPARATOR
-      }
-       */
     }
     prologProgram.toString()
   }
 
   private val LINE_SEPARATOR = scala.util.Properties.lineSeparator
-  private def getPhysicalDeviceById[P <: Position[P]](id: Int, devices: List[PhysicalDevice[P]]): Option[PhysicalDevice[P]] = {
+  private def getPhysicalDeviceById[T, P <: Position[P]](id: Int, devices: List[PhysicalDevice[T, P]]): Option[PhysicalDevice[T, P]] = {
     devices.find(_.id == id)
   }
 }

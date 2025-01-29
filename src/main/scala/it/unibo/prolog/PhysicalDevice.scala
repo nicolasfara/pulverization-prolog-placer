@@ -1,18 +1,28 @@
 package it.unibo.prolog
 
-import it.unibo.alchemist.model.Position
+import it.unibo.alchemist.model.molecules.SimpleMolecule
+import it.unibo.alchemist.model.{Environment, Position}
 
-final case class PhysicalDevice[P <: Position[P]](
+import scala.jdk.CollectionConverters.IteratorHasAsScala
+
+final case class PhysicalDevice[T, P <: Position[P]](
     id: Int,
     pos: P,
+    env: Environment[T, P],
     kind: Kind = Application,
     appLevel: Boolean = true,
     sourceMixApplication: List[Double],
     sourceMixInfrastructural: List[Double],
     pueApplication: Double,
     pueInfrastructural: Double,
+    availableHwApplication: Int,
+    availableHwInfrastructural: Int,
 ) extends Prologable {
   import Constants._
+
+  private val appDeviceMolecule = new SimpleMolecule("applicationDevice")
+  private val infraDeviceMolecule = new SimpleMolecule("infrastructuralDevice")
+
   override val name: String = kind match {
     case Application     => s"robot$id"
     case Infrastructural => s"cloud$id"
@@ -21,10 +31,8 @@ final case class PhysicalDevice[P <: Position[P]](
   override def toProlog: String = {
     val j = id
     val capabilities = if (appLevel) s"[($S_NAME$j, temperature)], [($A_NAME$j, thermostate)]" else "[], []"
-    // TODO: prenderli da simulazione
-    val totalHw = if (appLevel) 4 else 20 // cloud has infinite hw
-    val availableHw = if (appLevel) totalHw else 20
-    // -----
+    val totalHw = if (appLevel) availableHwApplication else availableHwInfrastructural // cloud has infinite hw
+    val availableHw = if (appLevel) availableHwApplication else availableHwInfrastructural
     // e.g. energySourceMix(robot2,[(0.1,gas),(0.8,coal),(0.1,onshorewind)])
     val energySourceMix = if (appLevel) {
       s"[(${sourceMixApplication.head},coal), (${sourceMixApplication.last},solar)]"
@@ -32,24 +40,27 @@ final case class PhysicalDevice[P <: Position[P]](
       s"[(${sourceMixInfrastructural.head},coal), (${sourceMixInfrastructural.last},solar)]"
     }
     val pue = if (appLevel) pueApplication else pueInfrastructural // power usage effectiveness
-    // energyConsumption(N, Load, EnergyPerLoad)
-    // Rumba 1.4KWh - 0.12KWh
-    val energyConsumption = if (appLevel) {
-      s"energyConsumption($name, _, 1.4)."
-    } else {
-      val loadThreshold = 2
-      val energyPerLoadLow = 0.12
-      val energyPerLoadHigh = 0.20
-      s"""
-         |energyConsumption($name, L, 0.1) :- L < 10.
-         |energyConsumption($name, L, 0.2) :- L >= 10, L < 40.
-         |energyConsumption($name, L, 0.3) :- L >= 40.
-         |""".stripMargin
-    }
+    val currentNode = env.getNodeByID(id)
+    val links = env.getNeighborhood(currentNode).getNeighbors.iterator().asScala
+      .filter(_.getId != currentNode.getId)
+      .map { neighbor =>
+        val distance = env.getDistanceBetweenNodes(currentNode, neighbor)
+        if (appLevel && neighbor.contains(appDeviceMolecule)){
+          s"link(robot$id, robot${neighbor.getId}, 10, $distance)."
+        } else if (appLevel && neighbor.contains(infraDeviceMolecule)) {
+          s"link(robot$id, cloud${neighbor.getId}, 10, $distance)."
+        } else if (!appLevel && neighbor.contains(appDeviceMolecule)) {
+          s"link(cloud$id, robot${neighbor.getId}, 100, $distance)."
+        } else if (!appLevel && neighbor.contains(infraDeviceMolecule)) {
+          s"link(cloud$id, cloud${neighbor.getId}, 100, $distance)."
+        } else {
+          throw new RuntimeException(s"Unknown device type for node ${neighbor.getId}")
+        }
+      }
     s"""
       |physicalDevice($name, $availableHw, $totalHw, $capabilities).
-      |$energyConsumption
       |energySourceMix($name, $energySourceMix).
-      |pue($name, $pue).""".stripMargin
+      |pue($name, $pue).
+      |${links.mkString("\n")}""".stripMargin
   }
 }

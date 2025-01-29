@@ -25,6 +25,8 @@ class SetupDevicesDeployment[T, P <: Position[P]](
     energyMixInfrastructural: java.util.List[Double],
     pueApplication: Double,
     pueInfrastructural: Double,
+    availableHwApplication: Int,
+    availableHwInfrastructural: Int,
 ) extends AbstractGlobalReaction[T, P](environment, timeDistribution) {
 
   private lazy val placementPredicate = deploymentStrategy match {
@@ -90,6 +92,8 @@ class SetupDevicesDeployment[T, P <: Position[P]](
       energyMixInfrastructural.asScala.toList,
       pueApplication,
       pueInfrastructural,
+      availableHwApplication,
+      availableHwInfrastructural,
     )
     Files.write(destinationDirectory.resolve("data.pl"), deployment.getBytes)
   }

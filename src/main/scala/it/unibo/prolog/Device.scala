@@ -2,7 +2,7 @@ package it.unibo.prolog
 
 import it.unibo.alchemist.model.Position
 
-final case class Device[P <: Position[P]](id: Int, physicalTwin: PhysicalDevice[P]) extends Prologable {
+final case class Device[T, P <: Position[P]](id: Int, physicalTwin: PhysicalDevice[T, P]) extends Prologable {
   import Constants._
 
   override val name: String = s"$DD_NAME$id"
