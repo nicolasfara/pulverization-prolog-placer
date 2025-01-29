@@ -1,3 +1,17 @@
+## [1.3.1](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.3.0...1.3.1) (2025-01-29)
+
+### Bug Fixes
+
+* fix on parsing prolog results ([81b082d](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/81b082d8d54b63739c1cd0b7504e06650d4cf1c4))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.3.0 [skip ci] ([25a7e05](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/25a7e054d2ba007d7d9ec844d605838ff2df559c))
+
+### Refactoring
+
+* refactor into a case class simulation parameters ([7d8a42c](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/7d8a42c2e704195f6b83e19e84f4605b0eb75a6c))
+
 ## [1.3.0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.2.0...1.3.0) (2025-01-29)
 
 ### Features
