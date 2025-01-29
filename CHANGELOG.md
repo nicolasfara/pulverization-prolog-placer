@@ -1,3 +1,25 @@
+## [1.3.0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.2.0...1.3.0) (2025-01-29)
+
+### Features
+
+* parametrized simulation parameters for prolog placer ([7fdd80a](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/7fdd80ac99b8a32566cec1ffca53f6a26c19b331))
+
+### Dependency updates
+
+* **deps:** update alchemist to v37.1.6 ([#32](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/32)) ([e4e2079](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/e4e20791b2aa6befd0d6e9c257d8997379c3ed35))
+* **deps:** update plugin com.gradle.enterprise to v3.19.1 ([#34](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/34)) ([48da640](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/48da6409bbee70d5d3c146717e5a858bf184ab44))
+* **deps:** update plugin gitsemver to v3.1.10 ([#38](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/38)) ([a8430a8](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/a8430a8526abc54ff5804fc51eef146a373a5b30))
+* **deps:** update plugin multijvmtesting to v3.2.2 ([#36](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/36)) ([ea87cb7](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/ea87cb7e0a8425bbaf0d42c11ed1dffca0abc38f))
+
+### Bug Fixes
+
+* fix some bugs in codegen module ([b8eb507](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/b8eb507598ca3df174fe4e768a6253e0029953bb))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.2.0 [skip ci] ([8bd53de](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/8bd53de058f77554b2f991360fd50001d9cebe99))
+* update alchemist and scafi ([818d88b](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/818d88b973a26792f71936ba65935aa528214d55))
+
 ## [1.2.0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.1.0...1.2.0) (2025-01-22)
 
 ### Features
