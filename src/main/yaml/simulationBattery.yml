@@ -80,6 +80,8 @@ launcher:
       - energySourceMixInfrastructural
       - pueApplication
       - pueInfrastructural
+      - availableHwApplication
+      - availableHwInfrastructural
 
 network-model:
   type: ConnectWithinDistancesEdge

@@ -35,7 +35,7 @@ class SetupDevicesDeployment[T, P <: Position[P]](
   }
   private val placementPattern = """on\(([^,]+),\s*([^,]+),\s*([^)]+)\)""".r
   private val componentPattern = """([a-z]+)(\d+)""".r
-  private val deviceSolutionPattern = """p\((\d+),\s*([\d.]+),\s*([\d.]+),\s*\[(.*?)]\)""".r
+  private val deviceSolutionPattern = """p\(([^,]+),\s*([\d.]+),\s*(\d+),\s*([\d.eE+-]+),\s*\[(.*?)]\)""".r
 
   override protected def executeBeforeUpdateDistribution(): Unit = {
     val deployment = getDeployment.getOrElse(throw new RuntimeException("Deployment not found"))
@@ -102,12 +102,15 @@ class SetupDevicesDeployment[T, P <: Position[P]](
 
   private def parseSolution(solution: Term): List[DeviceDeployment] = {
     (for {
-      deviceSolutionPattern(_, carbon, energy, components) <- deviceSolutionPattern.findAllIn(solution.toString)
+      deviceSolutionPattern(deviceId, carbon, _, energy, components) <- deviceSolutionPattern.findAllIn(solution.toString)
+      id = componentPattern.findAllIn(deviceId).toList.head match {
+        case componentPattern(_, id) => id.toInt
+      }
       componentsDeployment = placementPattern.findAllIn(components).toList.map {
         case placementPattern(componentPattern(component, cId), componentPattern(device, dId), hw) =>
           Placement(Component(component, cId.toInt), PlaceDevice(device, dId.toInt), hw.toDouble)
       }
-    } yield DeviceDeployment(0, carbon.toDouble, energy.toDouble, componentsDeployment)).toList // TODO: fix hardcoded 0
+    } yield DeviceDeployment(id, carbon.toDouble, energy.toDouble, componentsDeployment)).toList // TODO: fix hardcoded 0
   }
 
   private def nodesContainingMolecule(molecule: SimpleMolecule): List[Node[T]] =
