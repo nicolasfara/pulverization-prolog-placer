@@ -11,7 +11,7 @@ import it.unibo.alchemist.model.SetupDevicesDeployment.{
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.alchemist.utils.AlchemistScafiUtils.getNodeProperty
 import it.unibo.prolog.DeploymentGenerator.generateDeployment
-import it.unibo.prolog.{Component, DeviceDeployment, PlaceDevice, Placement}
+import it.unibo.prolog.{Component, DeviceDeployment, PlaceDevice, Placement, SimulationParameters}
 import org.jpl7.{Atom, Query, Term, Variable}
 
 import java.nio.file.{Files, Path, StandardCopyOption}
@@ -88,12 +88,14 @@ class SetupDevicesDeployment[T, P <: Position[P]](
       environment,
       applicationDevice,
       infrastructuralDevice,
-      energyMixApplication.asScala.toList,
-      energyMixInfrastructural.asScala.toList,
-      pueApplication,
-      pueInfrastructural,
-      availableHwApplication,
-      availableHwInfrastructural,
+      SimulationParameters(
+        energyMixApplication.asScala.toList,
+        energyMixInfrastructural.asScala.toList,
+        pueApplication,
+        pueInfrastructural,
+        availableHwApplication,
+        availableHwInfrastructural,
+      ),
     )
     Files.write(destinationDirectory.resolve("data.pl"), deployment.getBytes)
   }

@@ -7,12 +7,7 @@ object DeploymentGenerator {
       environment: Environment[T, P],
       applicationDevices: List[Node[T]],
       infrastructuralDevices: List[Node[T]],
-      energyMixApplication: List[Double],
-      energyMixInfrastructural: List[Double],
-      pueApplication: Double,
-      pueInfrastructural: Double,
-      availableHwApplication: Int,
-      availableHwInfrastructural: Int,
+      simulationParameters: SimulationParameters,
   ): String = {
     val physicalApplicationDevices = applicationDevices
       .map { node =>
@@ -22,12 +17,7 @@ object DeploymentGenerator {
           environment,
           Application,
           appLevel = true,
-          energyMixApplication,
-          energyMixInfrastructural,
-          pueApplication,
-          pueInfrastructural,
-          availableHwApplication,
-          availableHwInfrastructural,
+          simulationParameters,
         )
       }
     val physicalInfrastructuralDevices = infrastructuralDevices
@@ -38,12 +28,7 @@ object DeploymentGenerator {
           environment,
           Infrastructural,
           appLevel = false,
-          energyMixApplication,
-          energyMixInfrastructural,
-          pueApplication,
-          pueInfrastructural,
-          availableHwApplication,
-          availableHwInfrastructural,
+          simulationParameters,
         )
       }
     val digitalDevices = applicationDevices
