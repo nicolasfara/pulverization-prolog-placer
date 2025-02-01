@@ -6,6 +6,9 @@ variables:
     max: 1
     step: 1
     default: 0
+  nodes: &applicationNodesCount
+    type: GeometricVariable
+    parameters: [ 5, 5, 20, 5 ]
   deploymentStrategy: &deploymentStrategy
     type: ArbitraryVariable
     parameters: [optimal, [optimal, heuristic]]
@@ -37,7 +40,6 @@ variables:
   availableHwInfrastructural: &availableHwInfrastructural
     type: ArbitraryVariable
     parameters: [ 20, [20] ]
-
   #------------------------------------------------------------------
   sensorsProgram: &sensorsProgram
     language: scala
@@ -85,7 +87,7 @@ launcher:
 
 network-model:
   type: ConnectWithinDistancesEdge
-  parameters: [6]
+  parameters: [50]
 
 _constants:
   retentionTime: &retentionTime 25.0
@@ -173,6 +175,13 @@ _programs:
         actions:
           - type: ModularizationRuntime
             parameters: [ *programDag ]
+  - program: &movement
+      - time-distribution: 1
+        type: Event
+        conditions: [ ]
+        actions:
+          - type: BrownianMove
+            parameters: [ 1 ]
 
 environment:
   type: Continuous2DEnvironment
@@ -192,10 +201,10 @@ environment:
         - *availableHwInfrastructural
 
 deployments:
-  - type: Grid
-    parameters: [-5, -5, -3, -4, 1, 1, 0.1, 0.1]
+  - type: Rectangle
+    parameters: [*applicationNodesCount, 0, 0, 50, 50]
 #  - type: GraphStreamDeployment
-#    parameters: [ 50, "RandomEuclidean", 5 ]
+#    parameters: [ 15, "RandomEuclidean", 5 ]
     programs:
       - *sensors
       - *surrogateSensors
@@ -207,6 +216,7 @@ deployments:
       - *surrogateCommunication
       - *behavior
       - *surrogateBehavior
+      - *movement
 #      - *modularizationRuntime
     contents:
       - molecule: applicationDevice
@@ -216,8 +226,8 @@ deployments:
         parameters: [ *programDag ]
   - type: SpecificPositions # Edge Servers
     parameters: [
-      [ 18.2152226, 16.3816613 ],
-      [ 18.2366507, 16.3838339 ],
+      [ 150, 150 ],
+      [ 152, 152 ],
 #      [ 8.2146077, 6.3485146 ],
 #      [ 8.2055562, 6.3778687 ],
 #      [ 8.1924837, 6.3458967 ],
