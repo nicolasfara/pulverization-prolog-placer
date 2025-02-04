@@ -34,15 +34,16 @@ final case class PhysicalDevice[T, P <: Position[P]](
     val availableHw =
       if (appLevel) simulationParameters.availableHwApplication else simulationParameters.availableHwInfrastructural
     // e.g. energySourceMix(robot2,[(0.1,gas),(0.8,coal),(0.1,onshorewind)])
-    val energySourceMix = if (appLevel) {
-      val renewablePercentage = random.nextDouble() * simulationParameters.maxRenewableEnergyApplication
-      val coalPercentage = 1 - renewablePercentage
-      s"[($coalPercentage,coal), ($renewablePercentage,solar)]"
+    val node = env.getNodeByID(id)
+    val renewablePercentage = if (appLevel) {
+      random.nextDouble() * simulationParameters.maxRenewableEnergyApplication
     } else {
-      val renewablePercentage = random.nextDouble() * simulationParameters.maxRenewableEnergyInfrastructural
-      val coalPercentage = 1 - renewablePercentage
-      s"[($coalPercentage,coal), ($renewablePercentage,solar)]"
+      random.nextDouble() * simulationParameters.maxRenewableEnergyInfrastructural
     }
+    val coalPercentage = 1 - renewablePercentage
+    node.setConcentration(new SimpleMolecule("renewablePercentage"), renewablePercentage.asInstanceOf[T])
+    node.setConcentration(new SimpleMolecule("coalPercentage"), coalPercentage.asInstanceOf[T])
+
     // power usage effectiveness
     val pue = if (appLevel) simulationParameters.pueApplication else simulationParameters.pueInfrastructural
     val currentNode = env.getNodeByID(id)
@@ -68,7 +69,7 @@ final case class PhysicalDevice[T, P <: Position[P]](
       }
     s"""
       |physicalDevice($name, $availableHw, $totalHw, $capabilities).
-      |energySourceMix($name, $energySourceMix).
+      |energySourceMix($name, [($coalPercentage,coal), ($renewablePercentage,solar)]).
       |pue($name, $pue).
       |${links.mkString("\n")}""".stripMargin
   }

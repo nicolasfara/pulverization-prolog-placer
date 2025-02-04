@@ -73,12 +73,12 @@ launcher:
       - nodes
       - isBaseline
       - deploymentStrategy
-      - energySourceMixApplication
-      - energySourceMixInfrastructural
-      - pueApplication
-      - pueInfrastructural
-      - availableHwApplication
-      - availableHwInfrastructural
+#      - energySourceMixApplication
+#      - energySourceMixInfrastructural
+#      - pueApplication
+#      - pueInfrastructural
+#      - availableHwApplication
+#      - availableHwInfrastructural
 
 network-model:
   type: ConnectWithinDistancesEdge
@@ -164,14 +164,14 @@ _programs:
             parameters: [ *behaviorProgram, *retentionTime, *programDag ]
       - program: send
   ## MODULARIZATION RUNTIME --
-  - program: &modularizationRuntime
+  - program: &latencyDetector
       - time-distribution: 1
         type: Event
         actions:
-          - type: ModularizationRuntime
-            parameters: [ *programDag ]
+          - type: LatencyDetector
+            parameters: [ ]
   - program: &movement
-      - time-distribution: 1
+      - time-distribution: 100 # 100 steps per minute
         type: Event
         conditions: [ ]
         actions:
@@ -182,7 +182,7 @@ environment:
   type: Continuous2DEnvironment
   parameters: []
   global-programs:
-    - time-distribution: 0.01
+    - time-distribution: 1
 #        type: Trigger
 #        parameters: [ 0 ]
       type: PrologDeploymentUpdater
@@ -213,6 +213,7 @@ deployments:
 #      - *behavior
 #      - *surrogateBehavior
       - *movement
+      - *latencyDetector
 #      - *modularizationRuntime
     contents:
       - molecule: applicationDevice
@@ -240,7 +241,7 @@ deployments:
 
 terminate:
   type: AfterTime
-  parameters: 1000
+  parameters: 720
 
 export:
   - type: CSVExporter
@@ -250,22 +251,12 @@ export:
       exportPath: "data"
     data:
       - time
-      - molecule: reward
+      - molecule: Carbon
         aggregators: [min, max, mean, variance]
         value-filter: onlyfinite
-        precision: 3
-      - molecule: batteryPercentage
+      - molecule: Energy
         aggregators: [min, max, mean, variance]
         value-filter: onlyfinite
-      - molecule: batteryCapacity
+      - molecule: Latency
         aggregators: [min, max, mean, variance]
-        value-filter: onlyfinite
-      - molecule: localComponentsPercentage
-        aggregators: [ min, max, mean, variance ]
-        value-filter: onlyfinite
-      - molecule: componentsInCloud
-        aggregators: [ min, max, mean, variance ]
-        value-filter: onlyfinite
-      - molecule: componentsInInfrastructuralDevice
-        aggregators: [ min, max, mean, variance ]
         value-filter: onlyfinite

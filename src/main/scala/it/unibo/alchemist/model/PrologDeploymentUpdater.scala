@@ -33,15 +33,17 @@ class PrologDeploymentUpdater[T, P <: Position[P]](
     ),
   )
   private var lastDeployment: List[DeviceDeployment] = _
+  private var isExecuted = false
 
   override protected def executeBeforeUpdateDistribution(): Unit = {
-    if (isBaseline) {
+    if (isBaseline && !isExecuted) {
       lastDeployment = placerManager.getNewDeployment
       lastDeployment.foreach { case d @ DeviceDeployment(id, _, _, placements) =>
         val currentNode = environment.getNodeByID(id)
         currentNode.setConcentration(new SimpleMolecule("Deployment"), d.asInstanceOf[T])
         placements.foreach(placeComponentPerDevice(_, currentNode))
       }
+      isExecuted = true
     }
     placerManager.updateTopology()
     lastDeployment.foreach { deployment =>

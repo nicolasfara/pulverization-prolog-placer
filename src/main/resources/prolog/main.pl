@@ -1,5 +1,6 @@
 :- set_prolog_flag(stack_limit, 16 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
+:- style_check(-discontiguous).
 
 :- discontiguous physicalDevice/5.
 :- discontiguous energyConsumption/3.
@@ -147,9 +148,9 @@ placeAll(Mode, Placements) :-
     % p(DigDev,C,M,E,Placement)
     findall(C, member(p(_,C,_,_,_), Placements), Cs), sum_list(Cs, TotC),
     findall(E, member(p(_,_,_,E,_), Placements), Es), sum_list(Es, TotE),
-    write('Total Carbon: '), write(TotC), nl, write('Total Energy: '), write(TotE), nl,
-    findall(N, member(p(_,_,N,_,_), Placements), Ns), length(Placements, M), sum_list(Ns, TotN),
-    write('Avg nodes per placement: '), AvgN is TotN / M, write(AvgN), nl.
+    % write('Total Carbon: '), write(TotC), nl, write('Total Energy: '), write(TotE), nl,
+    findall(N, member(p(_,_,N,_,_), Placements), Ns), length(Placements, M), sum_list(Ns, TotN).
+    % write('Avg nodes per placement: '), AvgN is TotN / M, write(AvgN), nl.
 
 placeDigitalDevices(heu, [DigDev|Rest], [P|PRest], IOld, INew) :-
     quickPlace(DigDev, P, IOld),
