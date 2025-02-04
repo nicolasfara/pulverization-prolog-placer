@@ -1,7 +1,9 @@
-package it.unibo.prolog
+package it.unibo.prolog.model
 
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.alchemist.model.{Environment, Position}
+import it.unibo.prolog._
+import org.apache.commons.math3.random.RandomGenerator
 
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
@@ -9,11 +11,12 @@ final case class PhysicalDevice[T, P <: Position[P]](
     id: Int,
     pos: P,
     env: Environment[T, P],
+    random: RandomGenerator,
     kind: Kind = Application,
     appLevel: Boolean = true,
     simulationParameters: SimulationParameters,
 ) extends Prologable {
-  import Constants._
+  import it.unibo.prolog.model.Constants._
 
   private val appDeviceMolecule = new SimpleMolecule("applicationDevice")
   private val infraDeviceMolecule = new SimpleMolecule("infrastructuralDevice")
@@ -32,9 +35,13 @@ final case class PhysicalDevice[T, P <: Position[P]](
       if (appLevel) simulationParameters.availableHwApplication else simulationParameters.availableHwInfrastructural
     // e.g. energySourceMix(robot2,[(0.1,gas),(0.8,coal),(0.1,onshorewind)])
     val energySourceMix = if (appLevel) {
-      s"[(${simulationParameters.energyMixApplication.head},coal), (${simulationParameters.energyMixApplication.last},solar)]"
+      val renewablePercentage = random.nextDouble() * simulationParameters.maxRenewableEnergyApplication
+      val coalPercentage = 1 - renewablePercentage
+      s"[($coalPercentage,coal), ($renewablePercentage,solar)]"
     } else {
-      s"[(${simulationParameters.energyMixInfrastructural.head},coal), (${simulationParameters.energyMixInfrastructural.last},solar)]"
+      val renewablePercentage = random.nextDouble() * simulationParameters.maxRenewableEnergyInfrastructural
+      val coalPercentage = 1 - renewablePercentage
+      s"[($coalPercentage,coal), ($renewablePercentage,solar)]"
     }
     // power usage effectiveness
     val pue = if (appLevel) simulationParameters.pueApplication else simulationParameters.pueInfrastructural

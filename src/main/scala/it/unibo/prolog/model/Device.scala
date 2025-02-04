@@ -1,9 +1,9 @@
-package it.unibo.prolog
+package it.unibo.prolog.model
 
 import it.unibo.alchemist.model.Position
 
 final case class Device[T, P <: Position[P]](id: Int, physicalTwin: PhysicalDevice[T, P]) extends Prologable {
-  import Constants._
+  import it.unibo.prolog.model.Constants._
 
   override val name: String = s"$DD_NAME$id"
   override def toProlog: String = {

@@ -1,10 +1,13 @@
 package it.unibo.prolog
 
 import it.unibo.alchemist.model.{Environment, Node, Position}
+import it.unibo.prolog.model.{Application, Device, Infrastructural, PhysicalDevice}
+import org.apache.commons.math3.random.RandomGenerator
 
 object DeploymentGenerator {
   def generateDeployment[T, P <: Position[P]](
       environment: Environment[T, P],
+      random: RandomGenerator,
       applicationDevices: List[Node[T]],
       infrastructuralDevices: List[Node[T]],
       simulationParameters: SimulationParameters,
@@ -15,6 +18,7 @@ object DeploymentGenerator {
           node.getId,
           environment.getPosition(node),
           environment,
+          random,
           Application,
           appLevel = true,
           simulationParameters,
@@ -26,6 +30,7 @@ object DeploymentGenerator {
           node.getId,
           environment.getPosition(node),
           environment,
+          random,
           Infrastructural,
           appLevel = false,
           simulationParameters,

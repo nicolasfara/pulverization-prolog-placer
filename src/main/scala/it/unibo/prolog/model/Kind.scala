@@ -1,4 +1,4 @@
-package it.unibo.prolog
+package it.unibo.prolog.model
 
 sealed trait Kind
 case object Infrastructural extends Kind

@@ -23,8 +23,8 @@ class AllocatorProperty[T, P <: Position[P]](
     */
   def setComponentsAllocation(newAllocation: Map[ComponentId, Int]): Unit = {
     checkComponentsValidity(newAllocation).foreach(throw _)
-    val neighborsNodes = environment.getNeighborhood(node).getNeighbors.iterator().asScala.toSet + node
-    checkAllocationValidity(newAllocation, neighborsNodes.map(_.getId)).foreach(throw _)
+    // val neighborsNodes = environment.getNeighborhood(node).getNeighbors.iterator().asScala.toSet + node
+    // checkAllocationValidity(newAllocation, neighborsNodes.map(_.getId)).foreach(throw _)
     removeFromRemote(componentsAllocation, newAllocation)
     componentsAllocation = componentsAllocation ++ newAllocation
   }

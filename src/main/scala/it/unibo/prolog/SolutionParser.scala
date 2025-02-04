@@ -29,6 +29,20 @@ object Component {
     case _    => throw new IllegalArgumentException(s"Unknown device type: $componentRepr")
   }
 }
-final case class PlaceDevice(name: String, id: Int)
-final case class Placement(component: Component, device: PlaceDevice, hardware: Double)
+final case class PlaceDevice(name: String, id: Int) {
+  override def toString: String = s"$name$id"
+}
+final case class Placement(component: Component, device: PlaceDevice, hardware: Double) {
+  override def toString: String = {
+    val cc = component match {
+      case Sensor(_) => s"s${component.id}"
+      case Actuator(_) => s"a${component.id}"
+      case Communication(_) => s"c${component.id}"
+      case Knowledge(_) => s"kd${component.id}"
+      case Behavior(_) => s"b${component.id}"
+    }
+    s"on($cc, $device, $hardware)"
+  }
+}
 final case class DeviceDeployment(deviceId: Int, carbon: Double, energy: Double, placements: List[Placement])
+final case class Footprint(carbon: Double, energy: Double)

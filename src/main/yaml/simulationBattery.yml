@@ -9,25 +9,18 @@ variables:
   nodes: &applicationNodesCount
     type: GeometricVariable
     parameters: [ 5, 5, 20, 5 ]
+  isBaseline: &isBaseline
+    type: ArbitraryVariable
+    parameters: [true, [true, false]]
   deploymentStrategy: &deploymentStrategy
     type: ArbitraryVariable
     parameters: [optimal, [optimal, heuristic]]
-  energySourceMixApplication: &energySourceMixApplication
-    type: ArbitraryVariable
-    parameters: [
-      [0.4, 0.6],
-      [
-        [0.4, 0.6]
-      ]
-    ]
-  energySourceMixInfrastructural: &energySourceMixInfrastructural
-    type: ArbitraryVariable
-    parameters: [
-      [ 0.8, 0.2 ],
-      [
-        [ 0.8, 0.2 ]
-      ]
-    ]
+  maxRenewableEnergyApplication: &maxRenewableEnergyApplication
+    language: scala
+    formula: 0.6
+  maxRenewableEnergyInfrastructural: &maxRenewableEnergyInfrastructural
+    language: scala
+    formula: 0.3
   pueApplication: &pueApplication
     type: ArbitraryVariable
     parameters: [1.2, [1.2]]
@@ -77,6 +70,8 @@ launcher:
   parameters:
     batch:
       - seed
+      - nodes
+      - isBaseline
       - deploymentStrategy
       - energySourceMixApplication
       - energySourceMixInfrastructural
@@ -187,14 +182,15 @@ environment:
   type: Continuous2DEnvironment
   parameters: []
   global-programs:
-    - time-distribution:
-        type: Trigger
-        parameters: [0]
-      type: SetupDevicesDeployment
+    - time-distribution: 0.01
+#        type: Trigger
+#        parameters: [ 0 ]
+      type: PrologDeploymentUpdater
       parameters:
+        - *isBaseline
         - *deploymentStrategy
-        - *energySourceMixApplication
-        - *energySourceMixInfrastructural
+        - *maxRenewableEnergyApplication
+        - *maxRenewableEnergyInfrastructural
         - *pueApplication
         - *pueInfrastructural
         - *availableHwApplication
@@ -206,16 +202,16 @@ deployments:
 #  - type: GraphStreamDeployment
 #    parameters: [ 15, "RandomEuclidean", 5 ]
     programs:
-      - *sensors
-      - *surrogateSensors
-      - *actuators
-      - *surrogateActuators
-      - *knowledge
-      - *surrogateKnowledge
-      - *communication
-      - *surrogateCommunication
-      - *behavior
-      - *surrogateBehavior
+#      - *sensors
+#      - *surrogateSensors
+#      - *actuators
+#      - *surrogateActuators
+#      - *knowledge
+#      - *surrogateKnowledge
+#      - *communication
+#      - *surrogateCommunication
+#      - *behavior
+#      - *surrogateBehavior
       - *movement
 #      - *modularizationRuntime
     contents:
@@ -232,19 +228,19 @@ deployments:
 #      [ 8.2055562, 6.3778687 ],
 #      [ 8.1924837, 6.3458967 ],
     ]
-    programs:
-      - *surrogateActuators
-      - *surrogateSensors
-      - *surrogateKnowledge
-      - *surrogateCommunication
-      - *surrogateBehavior
+#    programs:
+#      - *surrogateActuators
+#      - *surrogateSensors
+#      - *surrogateKnowledge
+#      - *surrogateCommunication
+#      - *surrogateBehavior
     contents:
       - molecule: infrastructuralDevice
         concentration: true
 
 terminate:
   type: AfterTime
-  parameters: 100
+  parameters: 1000
 
 export:
   - type: CSVExporter

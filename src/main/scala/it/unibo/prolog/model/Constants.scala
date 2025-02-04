@@ -1,4 +1,4 @@
-package it.unibo.prolog
+package it.unibo.prolog.model
 
 object Constants {
   // name prefixes

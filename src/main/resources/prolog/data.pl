@@ -1,12 +1,12 @@
 physicalDevice(robot0, 8, 8, [(s0, temperature)], [(a0, thermostate)]).
 energySourceMix(robot0, [(0.4,coal), (0.6,solar)]).
 pue(robot0, 1.2).
-link(robot0, robot1, 10, 0.9890515424521616).
+link(robot0, robot1, 10, 0.19890515424521616).
 
 physicalDevice(robot1, 8, 8, [(s1, temperature)], [(a1, thermostate)]).
 energySourceMix(robot1, [(0.4,coal), (0.6,solar)]).
 pue(robot1, 1.2).
-link(robot1, robot0, 10, 0.9890515424521616).
+link(robot1, robot0, 10, 0.19890515424521616).
 
 physicalDevice(cloud2, 10, 130, [], []).
 
