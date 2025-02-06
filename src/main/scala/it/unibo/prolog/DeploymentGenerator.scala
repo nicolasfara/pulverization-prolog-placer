@@ -46,6 +46,11 @@ object DeploymentGenerator {
     val prologProgram = new StringBuilder()
     prologProgram.append(
       """
+        |:- discontiguous physicalDevice/5.
+        |:- discontiguous energyConsumption/3.
+        |:- discontiguous pue/2.
+        |:- discontiguous energySourceMix/2.
+        |:- discontiguous link/4.
         |:- discontiguous digitalDevice/3.
         |:- discontiguous knowledge/2.
         |:- discontiguous behaviour/3.

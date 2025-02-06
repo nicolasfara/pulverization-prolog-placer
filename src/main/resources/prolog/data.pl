@@ -1,12 +1,25 @@
+
+:- discontiguous physicalDevice/5.
+:- discontiguous energyConsumption/3.
+:- discontiguous pue/2.
+:- discontiguous energySourceMix/2.
+:- discontiguous link/4.
+:- discontiguous digitalDevice/3.
+:- discontiguous knowledge/2.
+:- discontiguous behaviour/3.
+:- discontiguous communication/3.
+:- discontiguous sense/3.
+:- discontiguous act/3.
+
 physicalDevice(robot0, 8, 8, [(s0, temperature)], [(a0, thermostate)]).
-energySourceMix(robot0, [(0.4,coal), (0.6,solar)]).
+energySourceMix(robot0, [(1.0,coal), (0.0,solar)]).
 pue(robot0, 1.2).
-link(robot0, robot1, 10, 0.19890515424521616).
+link(robot0, robot1, 10, 0.119890515424521616).
 
 physicalDevice(robot1, 8, 8, [(s1, temperature)], [(a1, thermostate)]).
 energySourceMix(robot1, [(0.4,coal), (0.6,solar)]).
 pue(robot1, 1.2).
-link(robot1, robot0, 10, 0.19890515424521616).
+link(robot1, robot0, 10, 0.119890515424521616).
 
 physicalDevice(cloud2, 10, 130, [], []).
 

@@ -1,18 +1,5 @@
 :- set_prolog_flag(stack_limit, 16 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
-:- style_check(-discontiguous).
-
-:- discontiguous physicalDevice/5.
-:- discontiguous energyConsumption/3.
-:- discontiguous pue/2. 
-:- discontiguous energySourceMix/2.
-:- discontiguous digitalDevice/3.
-:- discontiguous knowledge/2.
-:- discontiguous behaviour/3.
-:- discontiguous communication/3.
-:- discontiguous sense/3.
-:- discontiguous act/3.
-:- discontiguous link/4.
 
 :- consult('energysourcedata.pl').
 :- consult('data.pl').
@@ -135,7 +122,7 @@ latencyOK(N,M,LatReq) :- (eLink(N,M,Lat,_); eLink(M,N,Lat,_)), Lat =< LatReq.
 %%% UTILITIES %%%
 
 eLink(X,Y,BW,Lat) :- link(X,Y,BW,Lat).
-link(X,X,0,inf). % self-link with infinite bw and null latency
+eLink(X,X,0,inf). % self-link with infinite bw and null latency
 
 involvedNodes(P,Nodes,M) :-
     findall(N, member(on(_,N,_), P), Ns), list_to_set(Ns, Nodes), length(Nodes, M).

@@ -70,6 +70,8 @@ class PrologPlacerManager[T, P <: Position[P]](
 
   def getFootprint(currentDeployment: DeviceDeployment): Footprint = {
     val placements = currentDeployment.placements.mkString(",")
+    val makeResult = new Query("make")
+    require(makeResult.hasSolution, "Cannot make the knowledge base")
     val queryResult = new Query(
       "footprint",
       Array[Term](

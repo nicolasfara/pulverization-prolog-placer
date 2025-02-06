@@ -257,6 +257,9 @@ export:
       - molecule: Energy
         aggregators: [min, max, mean, variance]
         value-filter: onlyfinite
-      - molecule: Latency
+      - molecule: InterLatency
+        aggregators: [min, max, mean, variance]
+        value-filter: onlyfinite
+      - molecule: IntraLatency
         aggregators: [min, max, mean, variance]
         value-filter: onlyfinite
