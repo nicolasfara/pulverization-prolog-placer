@@ -3,6 +3,7 @@
 .idea/
 .spyproject/
 build/
+env/
 charts/
 data_summary_*
 timeprocessed

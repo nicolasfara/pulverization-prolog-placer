@@ -246,7 +246,7 @@ terminate:
 export:
   - type: CSVExporter
     parameters:
-      fileNameRoot: "experiment-battery"
+      fileNameRoot: "prolog-placer"
       interval: 1.0
       exportPath: "data"
     data:

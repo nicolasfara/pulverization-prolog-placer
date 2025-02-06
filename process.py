@@ -184,17 +184,17 @@ if __name__ == '__main__':
     # How to name the summary of the processed data
     pickleOutput = 'data_summary'
     # Experiment prefixes: one per experiment (root of the file name)
-    experiments = ['simulation']
+    experiments = ['prolog-placer']
     floatPrecision = '{: 0.3f}'
     # Number of time samples 
-    timeSamples = 100
+    timeSamples = 360
     # time management
     minTime = 0
-    maxTime = 50
+    maxTime = 720
     timeColumnName = 'time'
     logarithmicTime = False
     # One or more variables are considered random and "flattened"
-    seedVars = ['seed', 'longseed']
+    seedVars = ['seed']
     # Label mapping
     class Measure:
         def __init__(self, description, unit = None):
@@ -425,3 +425,58 @@ if __name__ == '__main__':
         generate_all_charts(current_experiment_means, current_experiment_errors, basedir = f'{experiment}/all')
         
 # Custom charting
+#     data = means['prolog-placer'].to_dataframe()
+#     data = data.reset_index()
+#     # Plot InterLatency[mean] vs IntraLatency[mean] over time
+#     fig, ax = plt.subplots()
+#     ax.plot(data['time'], data['InterLatency[mean]'], label='InterLatency[mean]')
+#     ax.plot(data['time'], data['IntraLatency[mean]'], label='IntraLatency[mean]')
+#     ax.set_xlabel('time')
+#     ax.set_ylabel('Latency')
+#     ax.set_title('InterLatency[mean] vs IntraLatency[mean] over time')
+#     ax.legend()
+#     fig.tight_layout()
+#     Path('charts/prolog-placer').mkdir(parents=True, exist_ok=True)
+#     fig.savefig('charts/prolog-placer/InterLatency[mean] vs IntraLatency[mean] over time.pdf')
+    data = means['prolog-placer'].to_dataframe()
+    data = data.reset_index()
+
+    # Identify NaN regions
+    nan_mask = data['InterLatency[mean]'].isna() | data['IntraLatency[mean]'].isna()
+    nan_intervals = []
+    prev_nan = False
+
+    for i in range(len(data)):
+        if nan_mask[i] and not prev_nan:
+            start = data['time'][i]
+            prev_nan = True
+        elif not nan_mask[i] and prev_nan:
+            end = data['time'][i]
+            nan_intervals.append((start, end))
+            prev_nan = False
+
+    if prev_nan:  # Handle case where last value is NaN
+        nan_intervals.append((start, data['time'].iloc[-1]))
+
+    # Plot
+    fig, ax = plt.subplots()
+    ax.plot(data['time'], data['InterLatency[mean]'], label='InterLatency[mean]')
+    ax.plot(data['time'], data['IntraLatency[mean]'], label='IntraLatency[mean]')
+
+    # Highlight NaN regions
+    for start, end in nan_intervals:
+        ax.axvspan(start, end, facecolor='red', alpha=0.1)
+
+    ax.set_xlabel('time')
+    ax.set_ylabel('Latency')
+    ax.set_title('InterLatency[mean] vs IntraLatency[mean] over time')
+    ax.legend()
+    fig.tight_layout()
+
+    # Save the figure
+    Path('charts/prolog-placer').mkdir(parents=True, exist_ok=True)
+    fig.savefig('charts/prolog-placer/InterLatency_vs_IntraLatency.pdf')
+
+    plt.show()
+
+
