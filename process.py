@@ -442,7 +442,7 @@ if __name__ == '__main__':
     data = data.reset_index()
 
     # Identify NaN regions
-    nan_mask = data['InterLatency[mean]'].isna() | data['IntraLatency[mean]'].isna()
+    nan_mask = (data['InterLatency[mean]'].isna() | data['IntraLatency[mean]'].isna())
     nan_intervals = []
     prev_nan = False
 
@@ -458,20 +458,34 @@ if __name__ == '__main__':
     if prev_nan:  # Handle case where last value is NaN
         nan_intervals.append((start, data['time'].iloc[-1]))
 
-    # Plot
-    fig, ax = plt.subplots()
-    ax.plot(data['time'], data['InterLatency[mean]'], label='InterLatency[mean]')
-    ax.plot(data['time'], data['IntraLatency[mean]'], label='IntraLatency[mean]')
+    # Create side-by-side plots
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharex=True, sharey=True)
 
-    # Highlight NaN regions
+    # InterLatency Plot
+    axes[0].plot(data['time'], data['InterLatency[mean]'], label='InterLatency[mean]', color='blue')
+    axes[0].plot(data['time'], data['InterLatency[min]'].reindex(data.index), linestyle='dashed', color='blue', alpha=0.6, label='InterLatency[min]')
+    axes[0].plot(data['time'], data['InterLatency[max]'].reindex(data.index), linestyle='dashed', color='blue', alpha=0.6, label='InterLatency[max]')
+    axes[0].set_title('InterLatency over Time')
+    axes[0].set_xlabel('time')
+    axes[0].set_ylabel('Latency')
+    axes[0].legend()
+
+    # IntraLatency Plot
+    axes[1].plot(data['time'], data['IntraLatency[mean]'], label='IntraLatency[mean]', color='green')
+    axes[1].plot(data['time'], data['IntraLatency[min]'].reindex(data.index), linestyle='dashed', color='green', alpha=0.6, label='IntraLatency[min]')
+    axes[1].plot(data['time'], data['IntraLatency[max]'].reindex(data.index), linestyle='dashed', color='green', alpha=0.6, label='IntraLatency[max]')
+    axes[1].set_title('IntraLatency over Time')
+    axes[1].set_xlabel('time')
+    axes[1].legend()
+
+    # Highlight NaN regions in both plots
     for start, end in nan_intervals:
-        ax.axvspan(start, end, facecolor='red', alpha=0.1)
+        axes[0].axvspan(start, end, facecolor='red', alpha=0.1)
+        axes[1].axvspan(start, end, facecolor='red', alpha=0.1)
 
-    ax.set_xlabel('time')
-    ax.set_ylabel('Latency')
-    ax.set_title('InterLatency[mean] vs IntraLatency[mean] over time')
-    ax.legend()
     fig.tight_layout()
+    plt.show()
+
 
     # Save the figure
     Path('charts/prolog-placer').mkdir(parents=True, exist_ok=True)

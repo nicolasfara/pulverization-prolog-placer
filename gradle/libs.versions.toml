@@ -1,10 +1,11 @@
 [versions]
-alchemist = "37.1.6"
+alchemist = "38.0.0"
 kotlin = "2.1.10"
 scalacache = "0.28.0"
 
 [libraries]
 alchemist = { module = "it.unibo.alchemist:alchemist", version.ref = "alchemist" }
+alchemist-implementations = { module = "it.unibo.alchemist:alchemist-implementationbase", version.ref = "alchemist" }
 alchemist-scafi = { module = "it.unibo.alchemist:alchemist-incarnation-scafi", version.ref = "alchemist" }
 alchemist-swing = { module = "it.unibo.alchemist:alchemist-swingui", version.ref = "alchemist" }
 resourceloader = "org.danilopianini:thread-inheritable-resource-loader:0.3.7"
@@ -14,7 +15,7 @@ scafi = { module = "it.unibo.scafi:scafi-core_2.13", version = "1.6.0" }
 swi-prolog = "com.github.SWI-Prolog:packages-jpl:V9.3.19"
 
 [bundles]
-alchemist-scafi = [ "alchemist", "alchemist-scafi", "alchemist-swing", "resourceloader", "scalacache-core", "scalacache-guava", "scafi" ]
+alchemist-scafi = [ "alchemist", "alchemist-implementations", "alchemist-scafi", "alchemist-swing", "resourceloader", "scalacache-core", "scalacache-guava", "scafi" ]
 
 [plugins]
 gitSemVer = { id = "org.danilopianini.git-sensitive-semantic-versioning", version = "4.0.2" }

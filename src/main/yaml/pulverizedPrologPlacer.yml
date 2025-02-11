@@ -171,7 +171,7 @@ _programs:
           - type: LatencyDetector
             parameters: [ ]
   - program: &movement
-      - time-distribution: 100 # 100 steps per minute
+      - time-distribution: 65 # steps per minute
         type: Event
         conditions: [ ]
         actions:
