@@ -3,11 +3,11 @@ incarnation: surrogatescafi
 variables:
   seed: &seed
     min: 0
-    max: 1
+    max: 2
     step: 1
     default: 0
   nodes: &applicationNodesCount
-    type: GeometricVariable
+    type: LinearVariable
     parameters: [ 5, 5, 20, 5 ]
   isBaseline: &isBaseline
     type: ArbitraryVariable
@@ -73,6 +73,9 @@ launcher:
       - nodes
       - isBaseline
       - deploymentStrategy
+    showProgress: true
+    autoStart: true
+    parallelism: 1
 #      - energySourceMixApplication
 #      - energySourceMixInfrastructural
 #      - pueApplication
@@ -88,81 +91,81 @@ _constants:
   retentionTime: &retentionTime 25.0
 
 _programs:
-  # SENSORS --
-  - program: &surrogateSensors
-      - time-distribution: 1
-        type: Event
-        actions:
-          - type: RunSurrogateScafiProgram
-            parameters: [ *sensorsProgram, *retentionTime, *programDag ]
-      - program: sendSurrogate
-  - program: &sensors
-      - time-distribution: 1
-        type: Event
-        actions:
-          - type: RunApplicationScafiProgram
-            parameters: [ *sensorsProgram, *retentionTime, *programDag ]
-      - program: send
-  ## ACTUATORS --
-  - program: &surrogateActuators
-      - time-distribution: 1
-        type: Event
-        actions:
-          - type: RunSurrogateScafiProgram
-            parameters: [ *actuatorsProgram, *retentionTime, *programDag ]
-      - program: sendSurrogate
-  - program: &actuators
-      - time-distribution: 1
-        type: Event
-        actions:
-          - type: RunApplicationScafiProgram
-            parameters: [ *actuatorsProgram, *retentionTime, *programDag ]
-      - program: send
-  ## KNOWLEDGE --
-  - program: &surrogateKnowledge
-      - time-distribution: 1
-        type: Event
-        actions:
-          - type: RunSurrogateScafiProgram
-            parameters: [ *knowledgeProgram, *retentionTime, *programDag ]
-      - program: sendSurrogate
-  - program: &knowledge
-      - time-distribution: 1
-        type: Event
-        actions:
-          - type: RunApplicationScafiProgram
-            parameters: [ *knowledgeProgram, *retentionTime, *programDag ]
-      - program: send
-  ## COMMUNICATION --
-  - program: &surrogateCommunication
-      - time-distribution: 1
-        type: Event
-        actions:
-          - type: RunSurrogateScafiProgram
-            parameters: [ *communicationProgram, *retentionTime, *programDag ]
-      - program: sendSurrogate
-  - program: &communication
-      - time-distribution: 1
-        type: Event
-        actions:
-          - type: RunApplicationScafiProgram
-            parameters: [ *communicationProgram, *retentionTime, *programDag ]
-      - program: send
-  ## BEHAVIOR --
-  - program: &surrogateBehavior
-      - time-distribution: 1
-        type: Event
-        actions:
-          - type: RunSurrogateScafiProgram
-            parameters: [ *behaviorProgram, *retentionTime, *programDag ]
-      - program: sendSurrogate
-  - program: &behavior
-      - time-distribution: 1
-        type: Event
-        actions:
-          - type: RunApplicationScafiProgram
-            parameters: [ *behaviorProgram, *retentionTime, *programDag ]
-      - program: send
+#  # SENSORS --
+#  - program: &surrogateSensors
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunSurrogateScafiProgram
+#            parameters: [ *sensorsProgram, *retentionTime, *programDag ]
+#      - program: sendSurrogate
+#  - program: &sensors
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunApplicationScafiProgram
+#            parameters: [ *sensorsProgram, *retentionTime, *programDag ]
+#      - program: send
+#  ## ACTUATORS --
+#  - program: &surrogateActuators
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunSurrogateScafiProgram
+#            parameters: [ *actuatorsProgram, *retentionTime, *programDag ]
+#      - program: sendSurrogate
+#  - program: &actuators
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunApplicationScafiProgram
+#            parameters: [ *actuatorsProgram, *retentionTime, *programDag ]
+#      - program: send
+#  ## KNOWLEDGE --
+#  - program: &surrogateKnowledge
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunSurrogateScafiProgram
+#            parameters: [ *knowledgeProgram, *retentionTime, *programDag ]
+#      - program: sendSurrogate
+#  - program: &knowledge
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunApplicationScafiProgram
+#            parameters: [ *knowledgeProgram, *retentionTime, *programDag ]
+#      - program: send
+#  ## COMMUNICATION --
+#  - program: &surrogateCommunication
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunSurrogateScafiProgram
+#            parameters: [ *communicationProgram, *retentionTime, *programDag ]
+#      - program: sendSurrogate
+#  - program: &communication
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunApplicationScafiProgram
+#            parameters: [ *communicationProgram, *retentionTime, *programDag ]
+#      - program: send
+#  ## BEHAVIOR --
+#  - program: &surrogateBehavior
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunSurrogateScafiProgram
+#            parameters: [ *behaviorProgram, *retentionTime, *programDag ]
+#      - program: sendSurrogate
+#  - program: &behavior
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunApplicationScafiProgram
+#            parameters: [ *behaviorProgram, *retentionTime, *programDag ]
+#      - program: send
   ## MODULARIZATION RUNTIME --
   - program: &latencyDetector
       - time-distribution: 1

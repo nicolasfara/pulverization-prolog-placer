@@ -1,0 +1,13 @@
+#####################################################################
+# Alchemist log file - simulation started at: 2025-02-11T16:47+0000 #
+#####################################################################
+#
+# seed = 0.0, nodes = 15.0, isBaseline = false, deploymentStrategy = heuristic, pueApplication = 1.2, pueInfrastructural = 1.3, availableHwApplication = 8, availableHwInfrastructural = 20
+#
+# The columns have the following meaning: 
+# time Carbon[min] Carbon[max] Carbon[mean] Carbon[variance] Energy[min] Energy[max] Energy[mean] Energy[variance] InterLatency[min] InterLatency[max] InterLatency[mean] InterLatency[variance] IntraLatency[min] IntraLatency[max] IntraLatency[mean] IntraLatency[variance] 
+0.0 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN
+0.0013238055587208783 NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN
+#####################################################################
+# End of data export. Simulation finished at: 2025-02-11T16:47+0000 #
+#####################################################################
