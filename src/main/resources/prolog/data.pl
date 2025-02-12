@@ -12,7 +12,7 @@
 :- discontiguous act/3.
 
 physicalDevice(robot0, 8, 8, [(s0, temperature)], [(a0, thermostate)]).
-energySourceMix(robot0, [(1.0,coal), (0.0,solar)]).
+energySourceMix(robot0, [(0.0,coal), (1.0,solar)]).
 pue(robot0, 1.2).
 link(robot0, robot1, 10, 0.119890515424521616).
 
