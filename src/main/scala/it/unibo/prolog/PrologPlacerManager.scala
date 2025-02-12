@@ -55,12 +55,12 @@ class PrologPlacerManager[T, P <: Position[P]](
   def getNewDeployment: List[DeviceDeployment] = {
     updateTopology()
     if (!isConsulted) {
-        val q1 = new Query("set_prolog_flag(verbose, silent).")
-        require(q1.hasSolution) // Execute the query
-        val q2 = new Query("set_prolog_flag(debug, off).")
-        require(q2.hasSolution)
-        val q3 = new Query("set_prolog_flag(report, off).")
-        require(q3.hasSolution)
+      val q1 = new Query("set_prolog_flag(verbose, silent).")
+      require(q1.hasSolution) // Execute the query
+      val q2 = new Query("set_prolog_flag(debug, off).")
+      require(q2.hasSolution)
+      val q3 = new Query("set_prolog_flag(report, off).")
+      require(q3.hasSolution)
       val consultKnowledge = new Query("consult", Array[Term](new Atom(s"${mainFilePath.toAbsolutePath}")))
       require(consultKnowledge.hasSolution, "Cannot consult the knowledge base")
       isConsulted = true
@@ -68,22 +68,30 @@ class PrologPlacerManager[T, P <: Position[P]](
       val makeResult = new Query("make")
       require(makeResult.hasSolution, "Cannot make the knowledge base")
     }
-    val queryResult = new Query("placeAll", Array[Term](new Atom(placementPredicate), new Variable("P")))
+    val queryResult = new Query(
+      "placeAll",
+      Array[Term](
+        new Atom(placementPredicate),
+        new Variable("P"),
+        new Variable("C"),
+        new Variable("E"),
+      ),
+    )
     require(queryResult.hasSolution, "Cannot find a solution for the deployment")
     val solution = queryResult.oneSolution().get("P")
     solutionParser.parseDeploymentSolution(solution)
   }
 
-  def getFootprint(currentDeployment: DeviceDeployment): Footprint = {
-    val placements = currentDeployment.placements.mkString(",")
+  def getFootprint(placements: List[Placement]): Footprint = {
+    val placementsToProlog = placements.mkString(",")
     val makeResult = new Query("make")
     require(makeResult.hasSolution, "Cannot make the knowledge base")
     val queryResult = new Query(
       "footprint",
       Array[Term](
-        Term.textToTerm(s"[$placements]"),
-        new Variable("C"),
+        Term.textToTerm(s"[$placementsToProlog]"),
         new Variable("E"),
+        new Variable("C"),
         Term.textToTerm("[]"),
       ),
     )

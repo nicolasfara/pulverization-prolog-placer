@@ -14,7 +14,7 @@ variables:
     parameters: [false, [true, false]]
   deploymentStrategy: &deploymentStrategy
     type: ArbitraryVariable
-    parameters: [heuristic, [optimal, heuristic]]
+    parameters: [optimal, [optimal, heuristic]]
   maxRenewableEnergyApplication: &maxRenewableEnergyApplication
     language: scala
     formula: 0.6

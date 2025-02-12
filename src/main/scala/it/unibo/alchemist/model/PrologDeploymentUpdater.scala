@@ -52,12 +52,11 @@ class PrologDeploymentUpdater[T, P <: Position[P]](
 
   private def updateFootprint(): Unit = {
     placerManager.updateTopology()
-    lastDeployment.foreach { deployment =>
-      val footprint = placerManager.getFootprint(deployment)
-      val node = environment.getNodeByID(deployment.deviceId)
-      node.setConcentration(new SimpleMolecule("Carbon"), footprint.carbon.asInstanceOf[T])
-      node.setConcentration(new SimpleMolecule("Energy"), footprint.energy.asInstanceOf[T])
-    }
+    val overallPlacements = lastDeployment.flatMap(_.placements)
+    val globalFootprint = placerManager.getFootprint(overallPlacements)
+    val node = environment.getNodeByID(0)
+    node.setConcentration(new SimpleMolecule("Carbon"), globalFootprint.carbon.asInstanceOf[T])
+    node.setConcentration(new SimpleMolecule("Energy"), globalFootprint.energy.asInstanceOf[T])
   }
 
   private def updateDeployment(): Unit = {
