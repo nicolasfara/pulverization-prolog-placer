@@ -11,10 +11,10 @@ variables:
     parameters: [ 5, 5, 20, 5 ]
   isBaseline: &isBaseline
     type: ArbitraryVariable
-    parameters: [true, [true, false]]
+    parameters: [false, [true, false]]
   deploymentStrategy: &deploymentStrategy
     type: ArbitraryVariable
-    parameters: [optimal, [optimal, heuristic]]
+    parameters: [heuristic, [optimal, heuristic]]
   maxRenewableEnergyApplication: &maxRenewableEnergyApplication
     language: scala
     formula: 0.6
@@ -85,7 +85,7 @@ launcher:
 
 network-model:
   type: ConnectWithinDistancesEdge
-  parameters: [50]
+  parameters: [100]
 
 _constants:
   retentionTime: &retentionTime 25.0
@@ -185,9 +185,7 @@ environment:
   type: Continuous2DEnvironment
   parameters: []
   global-programs:
-    - time-distribution: 1
-#        type: Trigger
-#        parameters: [ 0 ]
+    - time-distribution: 0.5
       type: PrologDeploymentUpdater
       parameters:
         - *isBaseline

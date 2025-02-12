@@ -55,6 +55,12 @@ class PrologPlacerManager[T, P <: Position[P]](
   def getNewDeployment: List[DeviceDeployment] = {
     updateTopology()
     if (!isConsulted) {
+        val q1 = new Query("set_prolog_flag(verbose, silent).")
+        require(q1.hasSolution) // Execute the query
+        val q2 = new Query("set_prolog_flag(debug, off).")
+        require(q2.hasSolution)
+        val q3 = new Query("set_prolog_flag(report, off).")
+        require(q3.hasSolution)
       val consultKnowledge = new Query("consult", Array[Term](new Atom(s"${mainFilePath.toAbsolutePath}")))
       require(consultKnowledge.hasSolution, "Cannot consult the knowledge base")
       isConsulted = true

@@ -18,7 +18,7 @@ class PrologDeploymentUpdater[T, P <: Position[P]](
     availableHwApplication: Int,
     availableHwInfrastructural: Int,
 ) extends AbstractGlobalReaction[T, P](environment, timeDistribution) {
-
+  private val RE_DEPLOYMENT_TIME = 15
   private lazy val placerManager = new PrologPlacerManager[T, P](
     environment,
     random,
@@ -34,23 +34,38 @@ class PrologDeploymentUpdater[T, P <: Position[P]](
   )
   private var lastDeployment: List[DeviceDeployment] = _
   private var isExecuted = false
+  private var elapsedTicks = 0
 
   override protected def executeBeforeUpdateDistribution(): Unit = {
-    if (isBaseline && !isExecuted) {
-      lastDeployment = placerManager.getNewDeployment
-      lastDeployment.foreach { case d @ DeviceDeployment(id, _, _, placements) =>
-        val currentNode = environment.getNodeByID(id)
-        currentNode.setConcentration(new SimpleMolecule("Deployment"), d.asInstanceOf[T])
-        placements.foreach(placeComponentPerDevice(_, currentNode))
-      }
+    elapsedTicks += 1
+    if (!isBaseline && !isExecuted) {
+      updateDeployment()
       isExecuted = true
     }
+    if ((isBaseline && !isExecuted) || (!isBaseline && elapsedTicks == RE_DEPLOYMENT_TIME)) {
+      updateDeployment()
+      isExecuted = true
+      elapsedTicks = 0
+    }
+    updateFootprint()
+  }
+
+  private def updateFootprint(): Unit = {
     placerManager.updateTopology()
     lastDeployment.foreach { deployment =>
       val footprint = placerManager.getFootprint(deployment)
       val node = environment.getNodeByID(deployment.deviceId)
       node.setConcentration(new SimpleMolecule("Carbon"), footprint.carbon.asInstanceOf[T])
       node.setConcentration(new SimpleMolecule("Energy"), footprint.energy.asInstanceOf[T])
+    }
+  }
+
+  private def updateDeployment(): Unit = {
+    lastDeployment = placerManager.getNewDeployment
+    lastDeployment.foreach { case d @ DeviceDeployment(id, _, _, placements) =>
+      val currentNode = environment.getNodeByID(id)
+      currentNode.setConcentration(new SimpleMolecule("Deployment"), d.asInstanceOf[T])
+      placements.foreach(placeComponentPerDevice(_, currentNode))
     }
   }
 
