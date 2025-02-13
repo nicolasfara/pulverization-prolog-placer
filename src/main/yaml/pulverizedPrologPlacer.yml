@@ -3,12 +3,12 @@ incarnation: surrogatescafi
 variables:
   seed: &seed
     min: 0
-    max: 2
+    max: 1
     step: 1
     default: 0
   nodes: &applicationNodesCount
     type: LinearVariable
-    parameters: [ 5, 5, 20, 5 ]
+    parameters: [ 5, 5, 20, 4 ]
   isBaseline: &isBaseline
     type: ArbitraryVariable
     parameters: [false, [true, false]]
@@ -253,14 +253,17 @@ export:
     data:
       - time
       - molecule: Carbon
-        aggregators: [min, max, mean, variance]
+        aggregators: [ mean ]
         value-filter: onlyfinite
       - molecule: Energy
-        aggregators: [min, max, mean, variance]
+        aggregators: [ mean ]
         value-filter: onlyfinite
       - molecule: InterLatency
-        aggregators: [min, max, mean, variance]
+        aggregators: [ min, max, mean, variance ]
         value-filter: onlyfinite
       - molecule: IntraLatency
-        aggregators: [min, max, mean, variance]
+        aggregators: [ min, max, mean, variance ]
+        value-filter: onlyfinite
+      - molecule: ExecutionTime
+        aggregators: [ mean ]
         value-filter: onlyfinite

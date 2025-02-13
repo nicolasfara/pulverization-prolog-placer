@@ -489,59 +489,97 @@ if __name__ == '__main__':
     plt.tight_layout()
     plt.savefig('charts/prolog-placer/IntraLatency_vs_InterLatency.pdf')
 
-    # data = means.to_dataframe()
-    # data = data.reset_index()
+    # Set up 2x2 subplots
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10), sharex=True, sharey=True)
 
-    # # Identify NaN regions
-    # nan_mask = (data['InterLatency[mean]'].isna() | data['IntraLatency[mean]'].isna())
-    # nan_intervals = []
-    # prev_nan = False
+    # Define deployment strategies and subplot positions
+    strategies = ["optimal", "heuristic"]
+    baselines = [True, False]
 
-    # for i in range(len(data)):
-    #     if nan_mask[i] and not prev_nan:
-    #         start = data['time'][i]
-    #         prev_nan = True
-    #     elif not nan_mask[i] and prev_nan:
-    #         end = data['time'][i]
-    #         nan_intervals.append((start, end))
-    #         prev_nan = False
+    # Loop through deployment strategies and isBaseline values
+    for i, strategy in enumerate(strategies):
+        for j, baseline in enumerate(baselines):
+            ax = axes[i, j]
+            subset = df_reset[(df_reset["deploymentStrategy"] == strategy) & (df_reset["isBaseline"] == baseline)]
+            
+            # Plot Carbon[mean]
+            sns.lineplot(
+                data=subset,
+                x="time",
+                y="Carbon[mean]",
+                label="Carbon[mean]",
+                ax=ax,
+                color=colors[0]
+            )
 
-    # if prev_nan:  # Handle case where last value is NaN
-    #     nan_intervals.append((start, data['time'].iloc[-1]))
+            # Plot Energy[mean]
+            sns.lineplot(
+                data=subset,
+                x="time",
+                y="Energy[mean]",
+                label="Energy[mean]",
+                ax=ax,
+                color=colors[1]
+            )
 
-    # # Create side-by-side plots
-    # fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharex=True, sharey=True)
+            # Set title and labels
+            ax.set_title(f"Deployment: {strategy.capitalize()} | {'Startup Deployment' if baseline else 'Continuous Deployment'}")
+            ax.set_xlabel("Time")
+            if j == 0:
+                ax.set_ylabel("Value")
 
-    # # InterLatency Plot
-    # axes[0].plot(data['time'], data['InterLatency[mean]'], label='InterLatency[mean]', color='blue')
-    # axes[0].plot(data['time'], data['InterLatency[min]'].reindex(data.index), linestyle='dashed', color='blue', alpha=0.6, label='InterLatency[min]')
-    # axes[0].plot(data['time'], data['InterLatency[max]'].reindex(data.index), linestyle='dashed', color='blue', alpha=0.6, label='InterLatency[max]')
-    # axes[0].set_title('InterLatency over Time')
-    # axes[0].set_xlabel('time')
-    # axes[0].set_ylabel('Latency')
-    # axes[0].legend()
+            # Enable grid
+            ax.grid(True, linestyle="--", alpha=0.7)
 
-    # # IntraLatency Plot
-    # axes[1].plot(data['time'], data['IntraLatency[mean]'], label='IntraLatency[mean]', color='green')
-    # axes[1].plot(data['time'], data['IntraLatency[min]'].reindex(data.index), linestyle='dashed', color='green', alpha=0.6, label='IntraLatency[min]')
-    # axes[1].plot(data['time'], data['IntraLatency[max]'].reindex(data.index), linestyle='dashed', color='green', alpha=0.6, label='IntraLatency[max]')
-    # axes[1].set_title('IntraLatency over Time')
-    # axes[1].set_xlabel('time')
-    # axes[1].legend()
+            # Add legend only to the first plot (to avoid repetition)
+            if i == 0 and j == 0:
+                ax.legend()
+            else:
+                ax.legend().remove()
 
-    # # Highlight NaN regions in both plots
-    # for start, end in nan_intervals:
-    #     axes[0].axvspan(start, end, facecolor='red', alpha=0.1)
-    #     axes[1].axvspan(start, end, facecolor='red', alpha=0.1)
+    # Improve layout
+    plt.tight_layout()
+    plt.savefig('charts/prolog-placer/Carbon_vs_Energy.pdf')
 
-    # fig.tight_layout()
-    # plt.show()
+    import math
+    
+    # Filter out baseline rows
+    df_filtered = dataframe[dataframe.index.get_level_values("isBaseline") == False]
 
+    # Get unique node counts
+    unique_nodes = sorted(df_filtered.index.get_level_values("nodes").unique())
+    num_nodes = len(unique_nodes)
 
-    # # Save the figure
-    # Path('charts/prolog-placer').mkdir(parents=True, exist_ok=True)
-    # fig.savefig('charts/prolog-placer/InterLatency_vs_IntraLatency.pdf')
+    # Determine subplot layout (rows x cols)
+    cols = int(math.sqrt(num_nodes))
+    rows = math.ceil(num_nodes / cols)
 
-    plt.show()
+    fig, axes = plt.subplots(rows, cols, figsize=(15, 5 * rows))
+    axes = axes.flatten()  # Flatten in case of single row/column
 
+    for i, nodes in enumerate(unique_nodes):
+        ax = axes[i]
+        
+        # Filter data for the current node count
+        node_data = df_filtered.xs(nodes, level="nodes")
 
+        # Group by deploymentStrategy
+        grouped = node_data["ExecutionTime[mean]"].groupby(node_data.index.get_level_values("deploymentStrategy"))
+
+        for strategy, strategy_data in grouped:
+            ax.plot(strategy_data.index.get_level_values("time"), strategy_data.values / 1e6, label=f"Strategy: {strategy}")
+
+        ax.set_xlabel("Time")
+        ax.set_ylabel("Execution Time (ms)")
+        ax.set_title(f"Nodes: {nodes}")
+        ax.legend()
+        ax.grid()
+
+        ax.set_yscale("log")
+
+    # Hide unused subplots
+    for j in range(i + 1, len(axes)):
+        fig.delaxes(axes[j])
+
+    plt.tight_layout()
+    plt.savefig('charts/prolog-placer/ExecutionTime_evolution.pdf')

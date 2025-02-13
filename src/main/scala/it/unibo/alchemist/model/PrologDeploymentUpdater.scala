@@ -60,12 +60,14 @@ class PrologDeploymentUpdater[T, P <: Position[P]](
   }
 
   private def updateDeployment(): Unit = {
-    lastDeployment = placerManager.getNewDeployment
+    val (newDeployment, executionTime) = time(placerManager.getNewDeployment)
+    lastDeployment = newDeployment
     lastDeployment.foreach { case d @ DeviceDeployment(id, _, _, placements) =>
       val currentNode = environment.getNodeByID(id)
       currentNode.setConcentration(new SimpleMolecule("Deployment"), d.asInstanceOf[T])
       placements.foreach(placeComponentPerDevice(_, currentNode))
     }
+    environment.getNodeByID(0).setConcentration(new SimpleMolecule("ExecutionTime"), executionTime.asInstanceOf[T])
   }
 
   private def placeComponentPerDevice(placement: Placement, nodeDevice: Node[T]): Unit = {
@@ -73,5 +75,12 @@ class PrologDeploymentUpdater[T, P <: Position[P]](
     val Placement(component, device, hw) = placement
     val allocator = getNodeProperty(nodeDevice, classOf[AllocatorProperty[T, P]])
     allocator.setComponentsAllocation(Map(component.fqn -> device.id))
+  }
+
+  private def time[R](block: => R): (R, Long) = {
+    val t0 = System.nanoTime()
+    val result = block
+    val t1 = System.nanoTime()
+    (result, t1 - t0)
   }
 }

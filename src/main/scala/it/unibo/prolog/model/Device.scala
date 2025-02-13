@@ -17,9 +17,9 @@ final case class Device[T, P <: Position[P]](id: Int, physicalTwin: PhysicalDevi
      */
     val knowledgeHwReqs = 1
     val commHwReqs = 0.5
-    val commLatencyToK = 150
+    val commLatencyToK = 90
     val behaviorHwReqs = 5
-    val behaviorLatencyToK = 150
+    val behaviorLatencyToK = 90
     val sensorHwReqs = 0.25
     val sensorLatencyToK = 25
     val actuatorHwReqs = 0.25
