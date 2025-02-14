@@ -428,158 +428,145 @@ if __name__ == '__main__':
 # Custom charting
     import seaborn as sns
 
+    sns.set_style("whitegrid")
+    sns.color_palette("colorblind")
+
     data = means['prolog-placer'].squeeze()
     dataframe = data.to_dataframe()
     print(dataframe)
 
-    # Reset index to bring multi-index back to columns
+    print("geneating chart for Latency")
+    # Reset the index for Seaborn usage
     df_reset = dataframe.reset_index()
-
-    # Set up 2x2 subplots
-    fig, axes = plt.subplots(2, 2, figsize=(14, 10), sharex=True, sharey=True)
-
-    # Define deployment strategies and subplot positions
+    # Define the strategies and baseline
     strategies = ["optimal", "heuristic"]
     baselines = [True, False]
-    # Set Viridis color palette
-    colors = sns.color_palette("colorblind", len(strategies))  # Get two distinct colors
+    # Convert baseline to a string for FacetGrid
+    df_reset["isBaseline"] = df_reset["isBaseline"].map({True: "Startup Deployment", False: "Continuous Deployment"})
+    # Melt the dataframe to long format for Seaborn
+    df_melted = df_reset.melt(
+        id_vars=["time", "isBaseline", "deploymentStrategy"],
+        value_vars=["IntraLatency[mean]", "InterLatency[mean]"],
+        var_name="Latency Type",
+        value_name="Latency"
+    )
+    # Replace legend values with custom names
+    df_melted["Latency Type"] = df_melted["Latency Type"].replace({
+        "IntraLatency[mean]": "Intra Device Latency",
+        "InterLatency[mean]": "Inter Device Latency"
+    })
+    # Create a FacetGrid with 2x2 layout
+    g = sns.FacetGrid(
+        df_melted,
+        col="isBaseline",
+        row="deploymentStrategy",
+        sharex=True,
+        sharey=True,
+        aspect=1.5,
+        col_order=["Startup Deployment", "Continuous Deployment"],  # Left to right order
+        row_order=strategies,  # Top to bottom order
+    )
+    # Map lineplot for the melted dataframe
+    g.map_dataframe(sns.lineplot, x="time", y="Latency", hue="Latency Type")
+    # Adjust titles, labels, and legends
+    g.set_titles(row_template="Strategy: {row_name}", col_template="{col_name}")
+    g.set_axis_labels("Time", "Latency")
+    g.add_legend(title="Latency Type"),
+    # Save the plot to a file
+    g.savefig('charts/prolog-placer/IntraLatency_vs_InterLatency.pdf')
 
-    # Loop through deployment strategies and isBaseline values
-    for i, strategy in enumerate(strategies):
-        for j, baseline in enumerate(baselines):
-            ax = axes[i, j]
-            subset = df_reset[(df_reset["deploymentStrategy"] == strategy) & (df_reset["isBaseline"] == baseline)]
-            
-            # Plot IntraLatency[mean]
-            sns.lineplot(
-                data=subset,
-                x="time",
-                y="IntraLatency[mean]",
-                label="IntraLatency[mean]",
-                color=colors[0],
-                ax=ax
-            )
-
-            # Plot InterLatency[mean]
-            sns.lineplot(
-                data=subset,
-                x="time",
-                y="InterLatency[mean]",
-                label="InterLatency[mean]",
-                color=colors[1],
-                ax=ax
-            )
-
-            # Set title and labels
-            ax.set_title(f"Deployment based on {strategy.capitalize()} | {'Startup Deployment' if baseline else 'Continuous Deployment'}")
-            ax.set_xlabel("Time")
-            if j == 0:
-                ax.set_ylabel("Latency")
-
-            # Enable grid
-            ax.grid(True, linestyle="--", alpha=0.7)
-
-            # Add legend only to the first plot (to avoid repetition)
-            if i == 0 and j == 0:
-                ax.legend()
-            else:
-                ax.legend().remove()
-
-    # Improve layout
-    plt.tight_layout()
-    plt.savefig('charts/prolog-placer/IntraLatency_vs_InterLatency.pdf')
-
-    # Set up 2x2 subplots
-    fig, axes = plt.subplots(2, 2, figsize=(14, 10), sharex=True, sharey=True)
-
-    # Define deployment strategies and subplot positions
-    strategies = ["optimal", "heuristic"]
-    baselines = [True, False]
-
-    # Loop through deployment strategies and isBaseline values
-    for i, strategy in enumerate(strategies):
-        for j, baseline in enumerate(baselines):
-            ax = axes[i, j]
-            subset = df_reset[(df_reset["deploymentStrategy"] == strategy) & (df_reset["isBaseline"] == baseline)]
-            
-            # Plot Carbon[mean]
-            sns.lineplot(
-                data=subset,
-                x="time",
-                y="Carbon[mean]",
-                label="Carbon[mean]",
-                ax=ax,
-                color=colors[0]
-            )
-
-            # Plot Energy[mean]
-            sns.lineplot(
-                data=subset,
-                x="time",
-                y="Energy[mean]",
-                label="Energy[mean]",
-                ax=ax,
-                color=colors[1]
-            )
-
-            # Set title and labels
-            ax.set_title(f"Deployment: {strategy.capitalize()} | {'Startup Deployment' if baseline else 'Continuous Deployment'}")
-            ax.set_xlabel("Time")
-            if j == 0:
-                ax.set_ylabel("Value")
-
-            # Enable grid
-            ax.grid(True, linestyle="--", alpha=0.7)
-
-            # Add legend only to the first plot (to avoid repetition)
-            if i == 0 and j == 0:
-                ax.legend()
-            else:
-                ax.legend().remove()
-
-    # Improve layout
-    plt.tight_layout()
-    plt.savefig('charts/prolog-placer/Carbon_vs_Energy.pdf')
+    print("geneating chart for Carbon vs Energy")
+    # Melt the dataframe to long format for Seaborn
+    df_melted = df_reset.melt(
+        id_vars=["time", "isBaseline", "deploymentStrategy"], 
+        value_vars=["Carbon[mean]", "Energy[mean]"],
+        var_name="Metric", 
+        value_name="Value"
+    )
+    # Replace legend values with custom names
+    df_melted["Metric"] = df_melted["Metric"].replace({
+        "Carbon[mean]": "Carbon Emission",
+        "Energy[mean]": "Energy Consumption"
+    })
+    # Create FacetGrid with 2x2 layout
+    g = sns.FacetGrid(
+        df_melted,
+        col="isBaseline",
+        row="deploymentStrategy",
+        sharex=True,
+        sharey=True,
+        aspect=1.5,
+        col_order=["Startup Deployment", "Continuous Deployment"],
+        row_order=strategies, 
+    )
+    # Use map_dataframe with hue to differentiate the metrics
+    g.map_dataframe(sns.lineplot, x="time", y="Value", hue="Metric")
+    # Set titles and labels
+    g.set_titles(row_template="Strategy: {row_name}", col_template="{col_name}")
+    g.set_axis_labels("Time", "Value")
+    g.add_legend(title="Metric")
+    # Save the figure
+    g.savefig("charts/prolog-placer/Carbon_vs_Energy.pdf")
 
     import math
     
+    print("geneating chart for Execution Time")
     # Filter out baseline rows
-    df_filtered = dataframe[dataframe.index.get_level_values("isBaseline") == False]
+    df_filtered = dataframe[dataframe.index.get_level_values("isBaseline") == False].reset_index()
+    # Convert execution time to seconds
+    df_filtered["ExecutionTime[mean]"] = df_filtered["ExecutionTime[mean]"] / 1e6
+    # Create FacetGrid for subplots
+    g = sns.FacetGrid(
+        df_filtered,
+        col="nodes",  # One subplot per unique node count
+        col_wrap=int(math.sqrt(df_filtered["nodes"].nunique())),  # Arrange in a grid
+        sharey=True,  # Keep y-axis scale consistent across subplots
+        aspect=1.5,
+        # height=5  # Adjust subplot size
+    )
+    # Add line plots
+    g.map_dataframe(
+        sns.lineplot,
+        x="time",
+        y="ExecutionTime[mean]",
+        hue="deploymentStrategy",
+    )
+    # Apply log scale & labels in a single call
+    g.set(
+        yscale="log",
+        xlabel="Time",
+        ylabel="Execution Time (ms)"
+    )
+    # Adjust titles & legend
+    g.set_titles(col_template="Nodes: {col_name}")
+    g.add_legend(title="Deployment Strategy")
+    # Save the figure directly
+    g.savefig("charts/prolog-placer/ExecutionTime_evolution.pdf")
 
-    # Get unique node counts
-    unique_nodes = sorted(df_filtered.index.get_level_values("nodes").unique())
-    num_nodes = len(unique_nodes)
-
-    # Determine subplot layout (rows x cols)
-    cols = int(math.sqrt(num_nodes))
-    rows = math.ceil(num_nodes / cols)
-
-    fig, axes = plt.subplots(rows, cols, figsize=(15, 5 * rows))
-    axes = axes.flatten()  # Flatten in case of single row/column
-
-    for i, nodes in enumerate(unique_nodes):
-        ax = axes[i]
-        
-        # Filter data for the current node count
-        node_data = df_filtered.xs(nodes, level="nodes")
-
-        # Group by deploymentStrategy
-        grouped = node_data["ExecutionTime[mean]"].groupby(node_data.index.get_level_values("deploymentStrategy"))
-
-        for strategy, strategy_data in grouped:
-            ax.plot(strategy_data.index.get_level_values("time"), strategy_data.values / 1e6, label=f"Strategy: {strategy}")
-
-        ax.set_xlabel("Time")
-        ax.set_ylabel("Execution Time (ms)")
-        ax.set_title(f"Nodes: {nodes}")
-        ax.legend()
-        ax.grid()
-
-        ax.set_yscale("log")
-
-    # Hide unused subplots
-    for j in range(i + 1, len(axes)):
-        fig.delaxes(axes[j])
-
-    plt.tight_layout()
-    plt.savefig('charts/prolog-placer/ExecutionTime_evolution.pdf')
+    print("geneating chart for Execution Time Scaling")
+    # Filter out baseline rows and reset the index
+    df_filtered = dataframe[dataframe.index.get_level_values("isBaseline") == False].reset_index()
+    # Convert execution time to seconds
+    df_filtered["ExecutionTime[mean]"] = df_filtered["ExecutionTime[mean]"] / 1e6  # Convert to ms
+    # Create the Seaborn lineplot with error bars
+    g = sns.relplot(
+        data=df_filtered,
+        x="nodes",
+        y="ExecutionTime[mean]",
+        hue="deploymentStrategy",
+        style="deploymentStrategy",  # Different styles if needed
+        kind="line",  # Use line plot
+        markers=True,  # Adds markers to show actual data points
+        dashes=False,  # Disable dashes for lines
+        errorbar="sd",  # Show standard deviation as error bars
+        aspect=2,  # Set the aspect ratio for the plot
+    )
+    # Set labels, title, and other properties
+    g.set_axis_labels("Number of Nodes", "Average Execution Time (ms)")
+    g.set_titles("Execution Time Scaling with Node Count")
+    g.set(yscale="log")  # Log scale for better visibility if values vary widely
+    # g.despine(left=True)  # Remove left spines for a cleaner look
+    # # Add legend with a title
+    # g._legend.set_title("Deployment Strategy")
+    # Save the plot
+    g.savefig('charts/prolog-placer/ExecutionTime_scaling.pdf')
