@@ -431,6 +431,8 @@ if __name__ == '__main__':
     sns.set_style("whitegrid")
     sns.color_palette("colorblind")
 
+    Path('charts/prolog-placer').mkdir(parents=True, exist_ok=True)
+
     data = means['prolog-placer'].squeeze()
     dataframe = data.to_dataframe()
     print(dataframe)
