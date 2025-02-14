@@ -1,3 +1,17 @@
+## [1.5.0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.4.0...1.5.0) (2025-02-14)
+
+### Features
+
+* use symlog as axis scale ([7f3733c](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/7f3733c415499b59b340a17f5863b242d4a1a895))
+
+### Bug Fixes
+
+* use right dockerhub username ([da17308](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/da17308da0359249b4a446a10e8ff278a7a6721d))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.4.0 [skip ci] ([8a035bf](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/8a035bff7ee22d0d49e5a3198b86b2a17476dcb2))
+
 ## [1.4.0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.3.1...1.4.0) (2025-02-14)
 
 ### Features
