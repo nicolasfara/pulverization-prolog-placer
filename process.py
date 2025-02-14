@@ -428,8 +428,10 @@ if __name__ == '__main__':
 # Custom charting
     import seaborn as sns
 
-    sns.set_style("whitegrid")
-    sns.color_palette("colorblind")
+    sns.set_theme(
+        style="whitegrid",
+        palette="colorblind",
+    )
 
     Path('charts/prolog-placer').mkdir(parents=True, exist_ok=True)
 
@@ -542,6 +544,7 @@ if __name__ == '__main__':
     # Adjust titles & legend
     g.set_titles(col_template="Nodes: {col_name}")
     g.add_legend(title="Deployment Strategy")
+    g.set(yscale="symlog", ylim=(0, None))  # Log scale for better visibility if values vary widely
     # Save the figure directly
     g.savefig("charts/prolog-placer/ExecutionTime_evolution.pdf")
 
@@ -566,7 +569,7 @@ if __name__ == '__main__':
     # Set labels, title, and other properties
     g.set_axis_labels("Number of Nodes", "Average Execution Time (ms)")
     g.set_titles("Execution Time Scaling with Node Count")
-    g.set(yscale="log")  # Log scale for better visibility if values vary widely
+    g.set(yscale="symlog", ylim=(0, None))  # Log scale for better visibility if values vary widely
     # g.despine(left=True)  # Remove left spines for a cleaner look
     # # Add legend with a title
     # g._legend.set_title("Deployment Strategy")
