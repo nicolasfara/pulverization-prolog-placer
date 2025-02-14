@@ -1,12 +1,13 @@
 :- set_prolog_flag(stack_limit, 16 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
+:- dynamic physicalDevice/5.
 
 :- consult('energysourcedata.pl').
 :- consult('data.pl').
 
 % Energy and carbon budget per single digital device placement
-maxEnergy(20).
-maxCarbon(20).
+maxEnergy(3).
+maxCarbon(5).
 maxNodes(30).
 
 % optimalPlace/3 finds one of the placements with  
@@ -130,19 +131,20 @@ involvedNodes(P,Nodes,M) :-
 % placeAll/2 finds all the possible placements of a digital device
 % 'opt' mode exploits optimal placement, 'heu' mode exploits heuristic placement
 placeAll(Mode, Placements, TotE, TotC) :- 
-    findall(DigDev, digitalDevice(DigDev, _, _), Devices), % TODO: heuristics?
+    findall(DigDev, digitalDevice(DigDev, _, _), Devices), 
+    greenestNodes(),
     placeDigitalDevices(Mode, Devices, Placements, [], _),
     % p(DigDev,C,M,E,Placement)
     findall(C, member(p(_,C,_,_,_), Placements), Cs), sum_list(Cs, TotC),
-    findall(E, member(p(_,_,_,E,_), Placements), Es), sum_list(Es, TotE),
+    findall(E, member(p(_,_,_,E,_), Placements), Es), sum_list(Es, TotE).
     % write('Total Carbon: '), write(TotC), nl, write('Total Energy: '), write(TotE), nl,
-    findall(N, member(p(_,_,N,_,_), Placements), Ns), length(Placements, M), sum_list(Ns, TotN).
+    %findall(N, member(p(_,_,N,_,_), Placements), Ns), length(Placements, _), sum_list(Ns, _).
     % write('Avg nodes per placement: '), AvgN is TotN / M, write(AvgN), nl.
 
 placeDigitalDevices(heu, [DigDev|Rest], [P|PRest], IOld, INew) :-
     quickPlace(DigDev, P, IOld),
     updatedInfrastructure(P, IOld, ITmp),
-    placeDigitalDevices(heu,Rest,PRest,ITmp,INew).
+    placeDigitalDevices(heu, Rest,PRest,ITmp,INew).
 placeDigitalDevices(opt, [DigDev|Rest], [P|PRest], IOld, INew) :-
     optimalPlace(DigDev, P, IOld),
     updatedInfrastructure(P, IOld, ITmp),
@@ -164,6 +166,24 @@ nodesUsage([N|Ns], P, I, IOld, INew) :-
     nodesUsage(Ns, P, I, ITmp, INew).
 nodesUsage([],_,_,I,I).
 
+greenestNodes() :-
+    findall((CI,physicalDevice(N,A,B,C,D)), (physicalDevice(N,A,B,C,D), carbonIntensity(N,CI)), TmpNodes),
+    sort(TmpNodes, Nodes),
+    retractall(physicalDevice(_,_,_,_,_)),
+    assertLoop(Nodes).
+
+assertLoop([(_,physicalDevice(N,A,B,C,D))|Rest]) :-
+    assert(physicalDevice(N,A,B,C,D)), assertLoop(Rest).
+assertLoop([]).
+
+carbonIntensity(N, CI) :-
+    energySourceMix(N, Sources),
+    multiplyEmissions(Sources, CI).
+
+multiplyEmissions([(P,S)|Srcs], CI) :-
+    multiplyEmissions(Srcs, TmpCI),
+    emissions(S,MU), CI is P * MU + TmpCI.
+multiplyEmissions([],0).
 
 
 % Checks that all components of a digital device can communicate according to a chosen Placement
