@@ -38,7 +38,7 @@ final case class PhysicalDevice[T, P <: Position[P]](
     val renewablePercentage = if (appLevel) {
       math.sin(env.getSimulation.getTime.toDouble / 100 + random.nextDouble()) * simulationParameters.maxRenewableEnergyApplication
     } else {
-      math.cos(env.getSimulation.getTime.toDouble / 100 + random.nextDouble()) * simulationParameters.maxRenewableEnergyInfrastructural
+      math.sin(env.getSimulation.getTime.toDouble / 100 + random.nextDouble()) * simulationParameters.maxRenewableEnergyInfrastructural
     }
     val coalPercentage = 1 - renewablePercentage
     node.setConcentration(new SimpleMolecule("renewablePercentage"), renewablePercentage.asInstanceOf[T])

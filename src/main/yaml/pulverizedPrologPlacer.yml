@@ -8,13 +8,13 @@ variables:
     default: 0
   nodes: &applicationNodesCount
     type: LinearVariable
-    parameters: [ 5, 5, 20, 5 ]
+    parameters: [ 5, 5, 16, 3 ]
   isBaseline: &isBaseline
     type: ArbitraryVariable
     parameters: [true, [true, false]]
   deploymentStrategy: &deploymentStrategy
     type: ArbitraryVariable
-    parameters: [heuristic, [optimal, heuristic]]
+    parameters: [optimal, [optimal, heuristic]]
   maxRenewableEnergyApplication: &maxRenewableEnergyApplication
     language: scala
     formula: 0.6
@@ -266,4 +266,7 @@ export:
         value-filter: onlyfinite
       - molecule: ExecutionTime
         aggregators: [ mean ]
+        value-filter: onlyfinite
+      - molecule: renewablePercentage
+        aggregators: [ min, max, mean, variance ]
         value-filter: onlyfinite

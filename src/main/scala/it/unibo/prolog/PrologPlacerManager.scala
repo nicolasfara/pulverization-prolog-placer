@@ -57,17 +57,22 @@ class PrologPlacerManager[T, P <: Position[P]](
     if (!isConsulted) {
       val q1 = new Query("set_prolog_flag(verbose, silent).")
       require(q1.hasSolution) // Execute the query
+      q1.close()
       val q2 = new Query("set_prolog_flag(debug, off).")
       require(q2.hasSolution)
+      q2.close()
       val q3 = new Query("set_prolog_flag(report, off).")
       require(q3.hasSolution)
+      q3.close()
       val consultKnowledge = new Query("consult", Array[Term](new Atom(s"${mainFilePath.toAbsolutePath}")))
       require(consultKnowledge.hasSolution, "Cannot consult the knowledge base")
+      consultKnowledge.close()
       isConsulted = true
     } else {
-      val makeResult = new Query("make")
-      require(makeResult.hasSolution, "Cannot make the knowledge base")
     }
+    val makeResult = new Query("make")
+    require(makeResult.hasSolution, "Cannot make the knowledge base")
+    makeResult.close()
     val queryResult = new Query(
       "placeAll",
       Array[Term](
@@ -79,6 +84,7 @@ class PrologPlacerManager[T, P <: Position[P]](
     )
     require(queryResult.hasSolution, "Cannot find a solution for the deployment")
     val solution = queryResult.oneSolution().get("P")
+    queryResult.close()
     solutionParser.parseDeploymentSolution(solution)
   }
 
@@ -86,6 +92,7 @@ class PrologPlacerManager[T, P <: Position[P]](
     val placementsToProlog = placements.mkString(",")
     val makeResult = new Query("make")
     require(makeResult.hasSolution, "Cannot make the knowledge base")
+    makeResult.close()
     val queryResult = new Query(
       "footprint",
       Array[Term](
@@ -97,6 +104,7 @@ class PrologPlacerManager[T, P <: Position[P]](
     )
     require(queryResult.hasSolution, "Cannot find a solution for the footprint")
     val solution = queryResult.oneSolution()
+    queryResult.close()
     solutionParser.parseFootprint(solution.get("C"), solution.get("E"))
   }
 
