@@ -1,3 +1,39 @@
+## [1.4.0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.3.1...1.4.0) (2025-02-14)
+
+### Features
+
+* add latency exporter and minor fixes on prolog side ([e17de3b](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/e17de3bc08e951beeb2533334e1d184de7d1bdec))
+* new data and finilised plots ([3795862](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/37958629314b13d17b7b1400bce7af0109f16d8f))
+* new generated data and processing ([b6f4a07](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/b6f4a071343264015a2bca49f168487db9d8e4dc))
+* new generated data and time processing ([537993e](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/537993ed0b6b058122c093c919a62d8d36788c6a))
+* new infrastructure for prolog interface ([3c6f3a2](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/3c6f3a244281cea937749d9f502e2efa1e38442a))
+
+### Dependency updates
+
+* **deps:** update dependency com.github.swi-prolog:packages-jpl to v9.3.19 ([#33](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/33)) ([a7e13b5](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/a7e13b58cb21435a079255b91beebecdd86a6136))
+* **deps:** update dependency gradle to v8.12.1 ([#37](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/37)) ([952d179](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/952d179dd8a79747b854dc9e993298462e1b2750))
+* **deps:** update dependency org.jetbrains.kotlin.jvm to v2.1.10 ([#40](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/40)) ([6e5d57f](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/6e5d57f76605e59b4565b97df1ebdb39a02e7303))
+* **deps:** update dependency scalafmt to v3.8.6 ([#35](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/35)) ([a357937](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/a35793761d3d3033cd70750244a177b8e000a1af))
+* **deps:** update eclipse-temurin docker tag to v22 ([#19](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/19)) ([33663f6](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/33663f624017a65c3a7245e83988752cc57d4c56))
+* **deps:** update eclipse-temurin docker tag to v23 ([#20](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/20)) ([46d3567](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/46d35679d51777eaeb25275dc5abf663b7a153cc))
+* **deps:** update plugin gitsemver to v4 ([#41](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/41)) ([6879a9b](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/6879a9bc633002ae40af88ea96a9a4b430b41034))
+
+### Bug Fixes
+
+* create custom charts folder ([3c8efa7](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/3c8efa70d61f7b63b31bc47a72bf029874ab22e5))
+* fix issue on carbon footprint ([31453dc](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/31453dc3b0bdf3be3512218f7920dc855f04570d))
+* improve latency detector ([acf34e2](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/acf34e22f106dfbea31a0fbfc5cba5f13cccac47))
+* solve a docker build problem ([b5ee45c](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/b5ee45c345c84170dc749adf5cbee6dc63902f46))
+
+### Build and continuous integration
+
+* **deps:** update actions/setup-node action to v4.2.0 ([#39](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/39)) ([13adfc7](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/13adfc7dfaf3ebbecee8a1ef61668408f311b17a))
+* **deps:** update actions/setup-python action to v5.4.0 ([#42](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/42)) ([a9cec19](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/a9cec19d91f743a9fcb6dfbc57d1810b2968726e))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.3.1 [skip ci] ([727a037](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/727a03754015c5231c757c6d47e84454c5643465))
+
 ## [1.3.1](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.3.0...1.3.1) (2025-01-29)
 
 ### Bug Fixes
