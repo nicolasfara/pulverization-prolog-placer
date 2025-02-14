@@ -7,3 +7,4 @@ env/
 charts/
 data_summary_*
 timeprocessed
+bin/
