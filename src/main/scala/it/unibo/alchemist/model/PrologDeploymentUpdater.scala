@@ -4,7 +4,6 @@ import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.alchemist.utils.AlchemistScafiUtils.getNodeProperty
 import it.unibo.prolog.{DeviceDeployment, Placement, PrologPlacerManager, SimulationParameters}
 import org.apache.commons.math3.random.RandomGenerator
-import org.jpl7.JPL
 
 class PrologDeploymentUpdater[T, P <: Position[P]](
     environment: Environment[T, P],
@@ -38,7 +37,6 @@ class PrologDeploymentUpdater[T, P <: Position[P]](
   private var elapsedTicks = 0
 
   override protected def executeBeforeUpdateDistribution(): Unit = {
-    println(s"${Thread.currentThread().getName}")
     elapsedTicks += 1
     if (!isBaseline && !isExecuted) {
       updateDeployment()

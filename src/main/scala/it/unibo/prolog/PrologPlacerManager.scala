@@ -3,18 +3,13 @@ package it.unibo.prolog
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.alchemist.model.{Environment, Node, Position}
 import it.unibo.prolog.DeploymentGenerator.generateDeployment
-import it.unibo.prolog.PrologPlacerManager.{
-  APPLICATION_MOLECULE,
-  ENERGY_SOURCE_DATA,
-  ENERGY_SOURCE_FILE_NAME,
-  INFRASTRUCTURAL_MOLECULE,
-  MAIN_FILE_NAME,
-  PROLOG_MAIN_FILE,
-}
+import it.unibo.prolog.PrologPlacerManager.{APPLICATION_MOLECULE, ENERGY_SOURCE_DATA, ENERGY_SOURCE_FILE_NAME, INFRASTRUCTURAL_MOLECULE, MAIN_FILE_NAME, PROLOG_MAIN_FILE}
 import org.apache.commons.math3.random.RandomGenerator
-import org.jpl7.{Atom, Query, Term, Variable}
+import org.jpl7.fli.Prolog
+import org.jpl7.{Atom, JPL, Query, Term, Variable}
 
 import java.nio.file.{Files, Path, StandardCopyOption, StandardOpenOption}
+import java.util.concurrent.{Callable, ExecutorService, Executors, Future, ThreadFactory}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
 class PrologPlacerManager[T, P <: Position[P]](
@@ -43,6 +38,7 @@ class PrologPlacerManager[T, P <: Position[P]](
     case "heuristic" => "heu"
   }
   private var isConsulted = false
+  private val executor = Executors.newSingleThreadExecutor(Executors.defaultThreadFactory())
 
   def updateTopology(): Unit = {
     val applicationDevice = nodesContainingMolecule(APPLICATION_MOLECULE)
@@ -54,59 +50,61 @@ class PrologPlacerManager[T, P <: Position[P]](
 
   def getNewDeployment: List[DeviceDeployment] = {
     updateTopology()
-    if (!isConsulted) {
-      val q1 = new Query("set_prolog_flag(verbose, silent).")
-      require(q1.hasSolution) // Execute the query
-      q1.close()
-      val q2 = new Query("set_prolog_flag(debug, off).")
-      require(q2.hasSolution)
-      q2.close()
-      val q3 = new Query("set_prolog_flag(report, off).")
-      require(q3.hasSolution)
-      q3.close()
-      val consultKnowledge = new Query("consult", Array[Term](new Atom(s"${mainFilePath.toAbsolutePath}")))
-      require(consultKnowledge.hasSolution, "Cannot consult the knowledge base")
-      consultKnowledge.close()
-      isConsulted = true
-    } else {
-    }
-    val makeResult = new Query("make")
-    require(makeResult.hasSolution, "Cannot make the knowledge base")
-    makeResult.close()
-    val queryResult = new Query(
-      "placeAll",
-      Array[Term](
-        new Atom(placementPredicate),
-        new Variable("P"),
-        new Variable("C"),
-        new Variable("E"),
-      ),
-    )
-    require(queryResult.hasSolution, "Cannot find a solution for the deployment")
-    val solution = queryResult.oneSolution().get("P")
-    queryResult.close()
-    solutionParser.parseDeploymentSolution(solution)
+    submitPrologQuery(() => {
+      if (!isConsulted) {
+        val q1 = new Query("set_prolog_flag(verbose, silent).")
+        require(q1.hasSolution) // Execute the query
+        val q2 = new Query("set_prolog_flag(debug, off).")
+        require(q2.hasSolution)
+        val q3 = new Query("set_prolog_flag(report, off).")
+        require(q3.hasSolution)
+        val consultKnowledge = new Query("consult", Array[Term](new Atom(s"${mainFilePath.toAbsolutePath}")))
+        require(consultKnowledge.hasSolution, "Cannot consult the knowledge base")
+        isConsulted = true
+      } else {
+        val makeResult = new Query("make")
+        require(makeResult.hasSolution, "Cannot make the knowledge base")
+        makeResult.close()
+      }
+      val queryResult = new Query(
+        "placeAll",
+        Array[Term](
+          new Atom(placementPredicate),
+          new Variable("P"),
+          new Variable("C"),
+          new Variable("E"),
+        ),
+      )
+      require(queryResult.hasSolution, "Cannot find a solution for the deployment")
+      val solution = queryResult.oneSolution().get("P")
+      queryResult.close()
+      solutionParser.parseDeploymentSolution(solution)
+    }).get()
   }
 
   def getFootprint(placements: List[Placement]): Footprint = {
     val placementsToProlog = placements.mkString(",")
-    val makeResult = new Query("make")
-    require(makeResult.hasSolution, "Cannot make the knowledge base")
-    makeResult.close()
-    val queryResult = new Query(
-      "footprint",
-      Array[Term](
-        Term.textToTerm(s"[$placementsToProlog]"),
-        new Variable("E"),
-        new Variable("C"),
-        Term.textToTerm("[]"),
-      ),
-    )
-    require(queryResult.hasSolution, "Cannot find a solution for the footprint")
-    val solution = queryResult.oneSolution()
-    queryResult.close()
-    solutionParser.parseFootprint(solution.get("C"), solution.get("E"))
+    submitPrologQuery(() => {
+      val makeResult = new Query("make")
+      require(makeResult.hasSolution, "Cannot make the knowledge base")
+      val queryResult = new Query(
+        "footprint",
+        Array[Term](
+          Term.textToTerm(s"[$placementsToProlog]"),
+          new Variable("E"),
+          new Variable("C"),
+          Term.textToTerm("[]"),
+        ),
+      )
+      require(queryResult.hasSolution, "Cannot find a solution for the footprint")
+      val solution = queryResult.oneSolution()
+      val res = solutionParser.parseFootprint(solution.get("C"), solution.get("E"))
+      queryResult.close()
+      res
+    }).get()
   }
+
+  private def submitPrologQuery[R](query: Callable[R]): Future[R] = executor.submit(query)
 
   private def nodesContainingMolecule(molecule: SimpleMolecule): List[Node[T]] =
     environment.getNodes.iterator().asScala.toList.filter(_.contains(molecule))
