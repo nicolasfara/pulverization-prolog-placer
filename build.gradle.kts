@@ -149,5 +149,10 @@ File(rootProject.rootDir.path + "/src/main/yaml")
 //                """.trimIndent(),
 //            )
         }
+        val custom by basetask("run${capitalizedName}Custom") {
+            description = "Launches custom experiments for $capitalizedName"
+            maxHeapSize = "${minOf(heap.toInt(), Runtime.getRuntime().availableProcessors() * taskSize)}m"
+            File("data_manual").mkdirs()
+        }
         runAllBatch.dependsOn(batch)
     }

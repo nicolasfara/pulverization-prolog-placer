@@ -1,0 +1,283 @@
+incarnation: surrogatescafi
+
+variables:
+  envSeed: &envSeed
+    language: kotlin
+    formula: System.getenv("SEED").toInt()
+  seed: &seed
+    type: ArbitraryVariable
+    parameters: [ *envSeed, [*envSeed] ]
+
+  envNodes: &envNodes
+    language: kotlin
+    formula: System.getenv("NODES").toInt()
+  nodes: &applicationNodesCount
+    type: ArbitraryVariable
+    parameters: [ *envNodes, [*envNodes] ]
+
+  isBaselineEnv: &isBaselineEnv
+    language: kotlin
+    formula: System.getenv("IS_BASELINE").toBoolean()
+  isBaseline: &isBaseline
+    type: ArbitraryVariable
+    parameters: [ *isBaselineEnv, [*isBaselineEnv] ]
+
+  deploymentStrategyEnv: &deploymentStrategyEnv
+    language: kotlin
+    formula: System.getenv("DEPLOYMENT_STRATEGY")
+  deploymentStrategy: &deploymentStrategy
+    type: ArbitraryVariable
+    parameters: [ *deploymentStrategyEnv, [*deploymentStrategyEnv] ]
+
+  maxRenewableEnergyApplication: &maxRenewableEnergyApplication
+    language: scala
+    formula: 0.6
+  maxRenewableEnergyInfrastructural: &maxRenewableEnergyInfrastructural
+    language: scala
+    formula: 0.3
+  pueApplication: &pueApplication
+    type: ArbitraryVariable
+    parameters: [1.2, [1.2]]
+  pueInfrastructural: &pueInfrastructural
+    type: ArbitraryVariable
+    parameters: [1.3, [1.3]]
+  availableHwApplication: &availableHwApplication
+    type: ArbitraryVariable
+    parameters: [ 8, [8] ]
+  availableHwInfrastructural: &availableHwInfrastructural
+    type: ArbitraryVariable
+    parameters: [ 20, [20] ]
+  #------------------------------------------------------------------
+  sensorsProgram: &sensorsProgram
+    language: scala
+    formula: "\"it.unibo.alchemist.Sensors\""
+  actuatorsProgram: &actuatorsProgram
+    language: scala
+    formula: "\"it.unibo.alchemist.Actuators\""
+  knowledgeProgram: &knowledgeProgram
+    language: scala
+    formula: "\"it.unibo.alchemist.Knowledge\""
+  communicationProgram: &communicationProgram
+    language: scala
+    formula: "\"it.unibo.alchemist.Communication\""
+  behaviorProgram: &behaviorProgram
+    language: scala
+    formula: "\"it.unibo.alchemist.Behavior\""
+  programDag: &programDag
+    language: scala
+    formula: >
+      Map(
+        sensorsProgram -> Set(behaviorProgram),
+        knowledgeProgram -> Set(behaviorProgram),
+        behaviorProgram -> Set(communicationProgram, actuatorsProgram, knowledgeProgram),
+      )
+#  componentsInstructions: &componentsInstructions
+#    language: scala
+#    formula: |
+#      Map(gradientProgram -> 10_000_000L, greaterDistance -> 16_500_000L)
+
+seeds:
+  scenario: *seed
+  simulation: *seed
+
+launcher:
+  parameters:
+    batch:
+      - seed
+      - nodes
+      - isBaseline
+      - deploymentStrategy
+    showProgress: true
+    autoStart: true
+    parallelism: 1
+#      - energySourceMixApplication
+#      - energySourceMixInfrastructural
+#      - pueApplication
+#      - pueInfrastructural
+#      - availableHwApplication
+#      - availableHwInfrastructural
+
+network-model:
+  type: ConnectWithinDistancesEdge
+  parameters: [150]
+
+_constants:
+  retentionTime: &retentionTime 25.0
+
+_programs:
+#  # SENSORS --
+#  - program: &surrogateSensors
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunSurrogateScafiProgram
+#            parameters: [ *sensorsProgram, *retentionTime, *programDag ]
+#      - program: sendSurrogate
+#  - program: &sensors
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunApplicationScafiProgram
+#            parameters: [ *sensorsProgram, *retentionTime, *programDag ]
+#      - program: send
+#  ## ACTUATORS --
+#  - program: &surrogateActuators
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunSurrogateScafiProgram
+#            parameters: [ *actuatorsProgram, *retentionTime, *programDag ]
+#      - program: sendSurrogate
+#  - program: &actuators
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunApplicationScafiProgram
+#            parameters: [ *actuatorsProgram, *retentionTime, *programDag ]
+#      - program: send
+#  ## KNOWLEDGE --
+#  - program: &surrogateKnowledge
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunSurrogateScafiProgram
+#            parameters: [ *knowledgeProgram, *retentionTime, *programDag ]
+#      - program: sendSurrogate
+#  - program: &knowledge
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunApplicationScafiProgram
+#            parameters: [ *knowledgeProgram, *retentionTime, *programDag ]
+#      - program: send
+#  ## COMMUNICATION --
+#  - program: &surrogateCommunication
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunSurrogateScafiProgram
+#            parameters: [ *communicationProgram, *retentionTime, *programDag ]
+#      - program: sendSurrogate
+#  - program: &communication
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunApplicationScafiProgram
+#            parameters: [ *communicationProgram, *retentionTime, *programDag ]
+#      - program: send
+#  ## BEHAVIOR --
+#  - program: &surrogateBehavior
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunSurrogateScafiProgram
+#            parameters: [ *behaviorProgram, *retentionTime, *programDag ]
+#      - program: sendSurrogate
+#  - program: &behavior
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: RunApplicationScafiProgram
+#            parameters: [ *behaviorProgram, *retentionTime, *programDag ]
+#      - program: send
+  ## MODULARIZATION RUNTIME --
+  - program: &latencyDetector
+      - time-distribution: 1
+        type: Event
+        actions:
+          - type: LatencyDetector
+            parameters: [ ]
+  - program: &movement
+      - time-distribution: 30 # steps per minute
+        type: Event
+        conditions: [ ]
+        actions:
+          - type: BrownianMove
+            parameters: [ 1 ]
+
+environment:
+  type: Continuous2DEnvironment
+  parameters: []
+  global-programs:
+    - time-distribution: 0.5
+      type: PrologDeploymentUpdater
+      parameters:
+        - *isBaseline
+        - *deploymentStrategy
+        - *maxRenewableEnergyApplication
+        - *maxRenewableEnergyInfrastructural
+        - *pueApplication
+        - *pueInfrastructural
+        - *availableHwApplication
+        - *availableHwInfrastructural
+
+deployments:
+  - type: Rectangle
+    parameters: [*applicationNodesCount, 0, 0, 50, 50]
+#  - type: GraphStreamDeployment
+#    parameters: [ 15, "RandomEuclidean", 5 ]
+    programs:
+#      - *sensors
+#      - *surrogateSensors
+#      - *actuators
+#      - *surrogateActuators
+#      - *knowledge
+#      - *surrogateKnowledge
+#      - *communication
+#      - *surrogateCommunication
+#      - *behavior
+#      - *surrogateBehavior
+      - *movement
+      - *latencyDetector
+#      - *modularizationRuntime
+    contents:
+      - molecule: applicationDevice
+        concentration: true
+    properties:
+      - type: AllocatorProperty
+        parameters: [ *programDag ]
+  - type: SpecificPositions # Edge Servers
+    parameters: [
+      [ 150, 150 ],
+      [ 152, 152 ],
+#      [ 8.2146077, 6.3485146 ],
+#      [ 8.2055562, 6.3778687 ],
+#      [ 8.1924837, 6.3458967 ],
+    ]
+#    programs:
+#      - *surrogateActuators
+#      - *surrogateSensors
+#      - *surrogateKnowledge
+#      - *surrogateCommunication
+#      - *surrogateBehavior
+    contents:
+      - molecule: infrastructuralDevice
+        concentration: true
+
+terminate:
+  type: AfterTime
+  parameters: 720
+
+export:
+  - type: CSVExporter
+    parameters:
+      fileNameRoot: "prolog-placer"
+      interval: 1.0
+      exportPath: "data_manual"
+    data:
+      - time
+      - molecule: Carbon
+        aggregators: [ mean ]
+        value-filter: onlyfinite
+      - molecule: Energy
+        aggregators: [ mean ]
+        value-filter: onlyfinite
+      - molecule: InterLatency
+        aggregators: [ min, max, mean, variance ]
+        value-filter: onlyfinite
+      - molecule: IntraLatency
+        aggregators: [ min, max, mean, variance ]
+        value-filter: onlyfinite
+      - molecule: ExecutionTime
+        aggregators: [ mean ]
+        value-filter: onlyfinite
