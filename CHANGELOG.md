@@ -1,3 +1,15 @@
+## [1.5.1](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.5.0...1.5.1) (2025-02-16)
+
+### Bug Fixes
+
+* fix path charts ([4960dcd](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/4960dcdec6c3f56a91d47f753a9bae699b12b55a))
+* minor and generated partial data ([806fed7](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/806fed79a2d166d0140adf91180eb67249348fa1))
+
+### General maintenance
+
+* **docker:** install parallel tool ([12fd424](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/12fd4242e2f045c34cf10f12841b90bb3a5f6032))
+* **release:** update gradle.properties .env versions to 1.5.0 [skip ci] ([ae9d6fc](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/ae9d6fc2fd1412cbccf98617a2990ecb4513eaea))
+
 ## [1.5.0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.4.0...1.5.0) (2025-02-14)
 
 ### Features
