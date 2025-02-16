@@ -12,7 +12,7 @@ resourceloader = "org.danilopianini:thread-inheritable-resource-loader:0.3.7"
 scalacache-core = { module = "com.github.cb372:scalacache-core_2.13", version.ref = "scalacache" }
 scalacache-guava = { module = "com.github.cb372:scalacache-guava_2.13", version.ref = "scalacache" }
 scafi = { module = "it.unibo.scafi:scafi-core_2.13", version = "1.6.0" }
-swi-prolog = "com.github.SWI-Prolog:packages-jpl:V9.3.19"
+swi-prolog = "com.github.SWI-Prolog:packages-jpl:V9.3.20"
 
 [bundles]
 alchemist-scafi = [ "alchemist", "alchemist-implementations", "alchemist-scafi", "alchemist-swing", "resourceloader", "scalacache-core", "scalacache-guava", "scafi" ]
