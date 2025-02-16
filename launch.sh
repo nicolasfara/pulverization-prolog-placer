@@ -16,6 +16,10 @@ run_simulation() {
   local bl=$3
   local str=$4
   echo "Running simulation with seed=$seed, nodes=$node, baseline=$bl, strategy=$str"
+  inCi=${CI:-false}
+  if [[ $inCi == "true" ]]; then
+    return
+  fi
   SEED=$seed NODES=$node IS_BASELINE=$bl DEPLOYMENT_STRATEGY=$str ./gradlew runPulverizedPrologPlacerManualCustom
 }
 
