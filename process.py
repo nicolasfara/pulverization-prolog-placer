@@ -178,7 +178,7 @@ def beautifyValue(v):
 if __name__ == '__main__':
     # CONFIGURE SCRIPT
     # Where to find Alchemist data files
-    directory = 'data'
+    directory = 'data_manual'
     # Where to save charts
     output_directory = 'charts'
     # How to name the summary of the processed data

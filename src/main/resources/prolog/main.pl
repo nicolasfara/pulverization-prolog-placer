@@ -1,6 +1,5 @@
 :- set_prolog_flag(stack_limit, 16 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
-:- dynamic physicalDevice/5.
 
 :- consult('energysourcedata.pl').
 :- consult('data.pl').
@@ -8,7 +7,7 @@
 % Energy and carbon budget per single digital device placement
 maxEnergy(3).
 maxCarbon(5).
-maxNodes(30).
+maxNodes(<max_nodes>).
 
 % optimalPlace/3 finds one of the placements with  
 % minimal number of nodes, lowest carbon emissions, and last, lowest energy consumption.
@@ -30,7 +29,7 @@ hardwareFootprint([],_,0,0,_).
 
 % Considers how much the Placement increases the energy consumption of node N
 % w.r.t. the energy consumption of N before the Placement
-% Note: some placements may "consume" null energy as they do not alter enough the infrastucture usage
+% Note: some placements may "consume" null energy as they do not alter enough the infrastructure usage
 nodeEnergy(N,Placement,Energy,I):-
     physicalDevice(N, FreeHW, TotHW, _, _), pue(N,PUE),
     (member(used(N,UsedHW), I); \+member(used(N,_), I), UsedHW = 0), 

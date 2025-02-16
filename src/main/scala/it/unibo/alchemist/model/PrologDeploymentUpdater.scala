@@ -18,7 +18,7 @@ class PrologDeploymentUpdater[T, P <: Position[P]](
     availableHwApplication: Int,
     availableHwInfrastructural: Int,
 ) extends AbstractGlobalReaction[T, P](environment, timeDistribution) {
-  private val RE_DEPLOYMENT_TIME = 15
+  private val RE_DEPLOYMENT_TIME = 30
   private lazy val placerManager = new PrologPlacerManager[T, P](
     environment,
     random,
@@ -61,7 +61,7 @@ class PrologDeploymentUpdater[T, P <: Position[P]](
 
   private def updateDeployment(): Unit = {
     val (newDeployment, executionTime) = time(placerManager.getNewDeployment)
-    lastDeployment = newDeployment
+    lastDeployment = if (newDeployment.nonEmpty) newDeployment else lastDeployment
     lastDeployment.foreach { case d @ DeviceDeployment(id, _, _, placements) =>
       val currentNode = environment.getNodeByID(id)
       currentNode.setConcentration(new SimpleMolecule("Deployment"), d.asInstanceOf[T])

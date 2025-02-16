@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # Define three lists
-seeds=(0 1 2)
-nodes=(5 10)
+seeds=(0 1)
+nodes=(20 40 60 80 100)
 baseline=(true false)
 strategy=("heuristic" "optimal")
 

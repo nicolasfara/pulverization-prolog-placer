@@ -11,7 +11,7 @@ variables:
     parameters: [ 5, 5, 16, 3 ]
   isBaseline: &isBaseline
     type: ArbitraryVariable
-    parameters: [true, [true, false]]
+    parameters: [false, [true, false]]
   deploymentStrategy: &deploymentStrategy
     type: ArbitraryVariable
     parameters: [optimal, [optimal, heuristic]]
@@ -85,7 +85,7 @@ launcher:
 
 network-model:
   type: ConnectWithinDistancesEdge
-  parameters: [100]
+  parameters: [150]
 
 _constants:
   retentionTime: &retentionTime 25.0

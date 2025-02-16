@@ -3,28 +3,32 @@ incarnation: surrogatescafi
 variables:
   envSeed: &envSeed
     language: kotlin
-    formula: System.getenv("SEED").toInt()
+    formula: |
+      (System.getenv("SEED") ?: "0").toInt()
   seed: &seed
     type: ArbitraryVariable
     parameters: [ *envSeed, [*envSeed] ]
 
   envNodes: &envNodes
     language: kotlin
-    formula: System.getenv("NODES").toInt()
+    formula: |
+      (System.getenv("NODES") ?: "5").toInt()
   nodes: &applicationNodesCount
     type: ArbitraryVariable
     parameters: [ *envNodes, [*envNodes] ]
 
   isBaselineEnv: &isBaselineEnv
     language: kotlin
-    formula: System.getenv("IS_BASELINE").toBoolean()
+    formula: |
+      (System.getenv("IS_BASELINE") ?: "false").toBoolean()
   isBaseline: &isBaseline
     type: ArbitraryVariable
     parameters: [ *isBaselineEnv, [*isBaselineEnv] ]
 
   deploymentStrategyEnv: &deploymentStrategyEnv
     language: kotlin
-    formula: System.getenv("DEPLOYMENT_STRATEGY")
+    formula: |
+      System.getenv("DEPLOYMENT_STRATEGY") ?: "optimal"
   deploymentStrategy: &deploymentStrategy
     type: ArbitraryVariable
     parameters: [ *deploymentStrategyEnv, [*deploymentStrategyEnv] ]

@@ -8,3 +8,4 @@ charts/
 data_summary_*
 timeprocessed
 bin/
+.metals/

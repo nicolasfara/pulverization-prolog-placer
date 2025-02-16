@@ -15,6 +15,7 @@ COPY src src
 COPY docker docker
 COPY *.kts ./
 COPY *.properties ./
+COPY launch.sh ./
 
 RUN sed -i '/alias(libs.plugins.gitSemVer)/d' build.gradle.kts
 RUN sed -i '/alias(libs.plugins.multiJvmTesting)/d' build.gradle.kts
@@ -30,4 +31,5 @@ ENV SWIPL_BOOT_FILE=/usr/lib/swi-prolog/boot.prc
 RUN CI=true ./gradlew runAllGraphic
 RUN rm -rf data
 RUN ./gradlew --stop
-CMD ./gradlew runAllBatch
+# CMD ./gradlew runAllBatch
+CMD ./launch.sh
