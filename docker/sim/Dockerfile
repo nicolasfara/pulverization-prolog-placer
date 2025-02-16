@@ -7,7 +7,7 @@ RUN apt-get update
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository ppa:swi-prolog/stable
 RUN apt update
-RUN apt install -y swi-prolog-java
+RUN apt install -y swi-prolog-java parallel
 
 COPY effects effects
 COPY gradle gradle
