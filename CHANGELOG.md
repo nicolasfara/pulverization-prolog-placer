@@ -1,3 +1,20 @@
+## [1.6.0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.5.1...1.6.0) (2025-02-17)
+
+### Features
+
+* new edge scenario ([4e93d85](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/4e93d854424e14ce232a9358a02b2092e54b313b))
+
+### Dependency updates
+
+* **deps:** update dependency com.github.swi-prolog:packages-jpl to v9.3.20 ([#47](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/47)) ([b7cdcc0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/b7cdcc059c88bbb864628d6200a348eb9a5af063))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.123 ([#46](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/46)) ([6460ae5](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/6460ae50f2061dd8fa4bb862f802a692203bb285))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.124 ([#53](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/53)) ([e15562a](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/e15562a015c701598e93a4a8200e90436689e866))
+* **deps:** update dependency xarray to v2025.1.2 ([#44](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/44)) ([563fed7](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/563fed7ec0c0ed9e96af8f606f5093c6748c5eef))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.5.1 [skip ci] ([0e8408d](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/0e8408da232a4214e46b1ff2a3b4eecf76035abd))
+
 ## [1.5.1](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.5.0...1.5.1) (2025-02-16)
 
 ### Bug Fixes
