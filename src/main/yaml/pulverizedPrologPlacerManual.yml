@@ -28,7 +28,7 @@ variables:
   deploymentStrategyEnv: &deploymentStrategyEnv
     language: kotlin
     formula: |
-      System.getenv("DEPLOYMENT_STRATEGY") ?: "optimal"
+      System.getenv("DEPLOYMENT_STRATEGY") ?: "edge"
   deploymentStrategy: &deploymentStrategy
     type: ArbitraryVariable
     parameters: [ *deploymentStrategyEnv, [*deploymentStrategyEnv] ]

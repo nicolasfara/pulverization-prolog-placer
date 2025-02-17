@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
 # Define three lists
-seeds=(0 1)
-nodes=(20 40 60 80 100)
+seeds=(0 1 2)
+# nodes=(20 40 60 80 100)
+nodes=(5 10 15)
 baseline=(true false)
-strategy=("heuristic" "optimal")
+strategy=("edge") # "heuristic" "optimal")
 
 # Available cores minus one
 num_cores=$(nproc --all)

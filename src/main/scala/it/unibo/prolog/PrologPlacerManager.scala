@@ -3,13 +3,18 @@ package it.unibo.prolog
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.alchemist.model.{Environment, Node, Position}
 import it.unibo.prolog.DeploymentGenerator.generateDeployment
-import it.unibo.prolog.PrologPlacerManager.{APPLICATION_MOLECULE, ENERGY_SOURCE_DATA, ENERGY_SOURCE_FILE_NAME, INFRASTRUCTURAL_MOLECULE, MAIN_FILE_NAME, PROLOG_MAIN_FILE}
+import it.unibo.prolog.PrologPlacerManager.{
+  APPLICATION_MOLECULE,
+  ENERGY_SOURCE_DATA,
+  ENERGY_SOURCE_FILE_NAME,
+  INFRASTRUCTURAL_MOLECULE,
+  MAIN_FILE_NAME,
+  PROLOG_MAIN_FILE,
+}
 import org.apache.commons.math3.random.RandomGenerator
-import org.jpl7.fli.Prolog
-import org.jpl7.{Atom, JPL, Query, Term, Variable}
+import org.jpl7.{Atom, Query, Term, Variable}
 
 import java.nio.file.{Files, Path, StandardCopyOption, StandardOpenOption}
-import java.util.concurrent.{Callable, ExecutorService, Executors, Future, ThreadFactory}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
 class PrologPlacerManager[T, P <: Position[P]](
@@ -27,21 +32,23 @@ class PrologPlacerManager[T, P <: Position[P]](
       StandardCopyOption.REPLACE_EXISTING,
     )
 
-    val copied = Files.copy(
+    /*val copied =*/
+    Files.copy(
       PROLOG_MAIN_FILE,
       destinationDirectory.resolve(MAIN_FILE_NAME),
       StandardCopyOption.REPLACE_EXISTING,
     )
-    Files.readString(copied).replace("<max_nodes>", environment.getNodes.size().toString) match {
-      case content =>
-        val fileToWrite = destinationDirectory.resolve(MAIN_FILE_NAME)
-        Files.write(fileToWrite, content.getBytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
-        fileToWrite
-    }
+//    Files.readString(copied).replace("<max_nodes>", environment.getNodes.size().toString) match {
+//      case content =>
+//        val fileToWrite = destinationDirectory.resolve(MAIN_FILE_NAME)
+//        Files.write(fileToWrite, content.getBytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+//        fileToWrite
+//    }
   }
   private lazy val placementPredicate = deploymentStrategy match {
     case "optimal"   => "opt"
     case "heuristic" => "heu"
+    case "edge"      => "edge"
   }
   private var isConsulted = false
 
