@@ -9,7 +9,7 @@ strategy=("edge") # "heuristic" "optimal")
 
 # Available cores minus one
 num_cores=$(nproc --all)
-num_cores=$((num_cores - 2))
+num_cores=$((num_cores / 2))
 
 run_simulation() {
   local seed=$1

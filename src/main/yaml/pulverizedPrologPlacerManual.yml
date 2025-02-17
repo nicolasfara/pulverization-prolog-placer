@@ -12,7 +12,7 @@ variables:
   envNodes: &envNodes
     language: kotlin
     formula: |
-      (System.getenv("NODES") ?: "5").toInt()
+      (System.getenv("NODES") ?: "50").toInt()
   nodes: &applicationNodesCount
     type: ArbitraryVariable
     parameters: [ *envNodes, [*envNodes] ]
@@ -28,7 +28,7 @@ variables:
   deploymentStrategyEnv: &deploymentStrategyEnv
     language: kotlin
     formula: |
-      System.getenv("DEPLOYMENT_STRATEGY") ?: "edge"
+      System.getenv("DEPLOYMENT_STRATEGY") ?: "heuristic"
   deploymentStrategy: &deploymentStrategy
     type: ArbitraryVariable
     parameters: [ *deploymentStrategyEnv, [*deploymentStrategyEnv] ]
