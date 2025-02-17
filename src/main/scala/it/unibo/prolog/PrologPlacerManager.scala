@@ -86,13 +86,14 @@ class PrologPlacerManager[T, P <: Position[P]](
         new Variable("E"),
       ),
     )
-    if (queryResult.hasSolution) {
-      val solution = queryResult.oneSolution().get("P")
-      queryResult.close()
-      solutionParser.parseDeploymentSolution(solution)
-    } else {
+    val solution = queryResult.oneSolution()
+    if (solution == null) {
       queryResult.close()
       List.empty
+    } else {
+      val res = solutionParser.parseDeploymentSolution(solution.get("P"))
+      queryResult.close()
+      res
     }
   }
 

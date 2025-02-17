@@ -103,7 +103,7 @@ launcher:
 
 network-model:
   type: ConnectWithinDistancesEdge
-  parameters: [150]
+  parameters: [10]
 
 _constants:
   retentionTime: &retentionTime 25.0
