@@ -135,12 +135,8 @@ placeAll(Mode, Placements, TotE, TotC) :-
     findall(DigDev, digitalDevice(DigDev, _, _), Devices), 
     greenestNodes(Nodes),
     placeDigitalDevices(Mode, Nodes, Devices, Placements, [], _),
-    % p(DigDev,C,M,E,Placement)
     findall(C, member(p(_,C,_,_,_), Placements), Cs), sum_list(Cs, TotC),
     findall(E, member(p(_,_,_,E,_), Placements), Es), sum_list(Es, TotE).
-    % write('Total Carbon: '), write(TotC), nl, write('Total Energy: '), write(TotE), nl,
-    %findall(N, member(p(_,_,N,_,_), Placements), Ns), length(Placements, _), sum_list(Ns, _).
-    % write('Avg nodes per placement: '), AvgN is TotN / M, write(AvgN), nl.
 placeAll(edge, Placements, TotE, TotC) :- 
     findall(DigDev, digitalDevice(DigDev, _, _), Devices), 
     greenestNodes(Nodes),
@@ -201,14 +197,7 @@ nodesUsage([N|Ns], P, I, IOld, INew) :-
 nodesUsage([],_,_,I,I).
 
 greenestNodes(Nodes) :-
-    %findall((CI,physicalDevice(N,A,B,C,D)), (physicalDevice(N,A,B,C,D), carbonIntensity(N,CI)), TmpNodes),
     findall((CI,N), (physicalDevice(N,_,_,_,_), carbonIntensity(N,CI)), TmpNodes), sort(TmpNodes, Nodes).
-    % retractall(physicalDevice(_,_,_,_,_)),
-    % assertLoop(Nodes).
-
-% assertLoop([(_,physicalDevice(N,A,B,C,D))|Rest]) :-
-%     assert(physicalDevice(N,A,B,C,D)), assertLoop(Rest).
-% assertLoop([]).
 
 carbonIntensity(N, CI) :-
     energySourceMix(N, Sources),
@@ -219,10 +208,3 @@ multiplyEmissions([(P,S)|Srcs], CI) :-
     emissions(S,MU), CI is P * MU + TmpCI.
 multiplyEmissions([],0).
 
-
-% Checks that all components of a digital device can communicate according to a chosen Placement
-% Might be useful for finer-grained checks on newer DAG-based pulverisation models. 
-% In this settings, we assume that all components can communicate through the knowledge component 
-% to which all other components connect (see predicate latencyOK/3 in placeComponents/4). 
-% %     connectivityOk(Placement) :-
-% %         \+ (member(on(C1,N1,_), Placement), member(on(C2,N2,_), Placement), dif(C1,C2), \+ link(N1,N2,_,_)).
