@@ -1,10 +1,12 @@
+
+
 :- set_prolog_flag(stack_limit, 16 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
 
 :- discontiguous placeDigitalDevices/6.
 
 :- consult('energysourcedata.pl').
-:- consult('data.pl').
+% :- consult('data.pl').
 
 % Energy and carbon budget per single digital device placement
 maxEnergy(3).
@@ -144,32 +146,27 @@ placeAll(edge, Placements, TotE, TotC) :-
     findall(C, member(p(_,C,_,_,_), Placements), Cs), sum_list(Cs, TotC),
     findall(E, member(p(_,_,_,E,_), Placements), Es), sum_list(Es, TotE).
 
-placeDigitalDevices(edge, Nodes, [DigDev|Rest], [P|PRest], IOld, INew) :-
-    edgePlace(DigDev, Nodes, P, IOld),
-    updatedInfrastructure(P, IOld, ITmp),
-    placeDigitalDevices(edge, Nodes, Rest, PRest, ITmp, INew).
-placeDigitalDevices(_, _, [], [], I, I).
-
-edgePlace(DigDev, Nodes, p(DigDev, C, M, E, Placement), I) :-
+edgePlace(DigDev, Nodes, p(DigDev, Carb, M, E, Placement), I) :-
     digitalDevice(DigDev, K, Components),
-    member((_, N), Nodes), 
-    placeKnowledge(K, N, KonN, I),
-    placeComponentsFixed(Nodes, Components, N, [KonN], Placement, I),
-    footprint(Placement, E, C, I), 
+    member(C, Components), member((_,N), Nodes), 
+    physicalDevice(N, _, _, Sensors, _), sense(C,_,_), member((C,_), Sensors), 
+    placeAllOnN(N, [K|Components], [], Placement, I),
+    footprint(Placement, E, Carb, I), 
     involvedNodes(Placement, _, M),
     maxEnergy(MaxE), maxCarbon(MaxC), maxNodes(MaxM), 
-    E =< MaxE, C =< MaxC, M =< MaxM.
+    E =< MaxE, Carb =< MaxC, M =< MaxM.
 
-placeComponentsFixed(Nodes, [C|Cs], N, Placement, NewPlacement, I) :-
+placeAllOnN(N, [C|Cs], Placement, NewPlacement,I) :-
     physicalDevice(N, HWCaps, _, Sensors, Actuators),
     (
+        (knowledge(C, HWReqs));
         (sense(C, HWReqs, _), member((C,_), Sensors)); 
         (act(C, HWReqs, _), member((C,_), Actuators)); 
         (behaviour(C, HWReqs, _); communication(C, HWReqs, _))
     ),
-    hwOK(N, Placement, HWCaps, HWReqs, I),
-    placeComponentsFixed(Nodes, Cs, N, [on(C, N, HWReqs)|Placement], NewPlacement, I).
-placeComponentsFixed(_, [], _, P, P, _).
+    hwOK(N,Placement,HWCaps,HWReqs,I),
+    placeAllOnN(N, Cs, [on(C, N, HWReqs)|Placement], NewPlacement, I).
+placeAllOnN(_, [], P, P, _).
 
 placeDigitalDevices(heu, Nodes, [DigDev|Rest], [P|PRest], IOld, INew) :-
     quickPlace(DigDev, Nodes, P, IOld),
@@ -179,6 +176,10 @@ placeDigitalDevices(opt, Nodes, [DigDev|Rest], [P|PRest], IOld, INew) :-
     optimalPlace(DigDev, Nodes, P, IOld),
     updatedInfrastructure(P, IOld, ITmp),
     placeDigitalDevices(opt,Nodes,Rest,PRest,ITmp,INew).
+placeDigitalDevices(edge, Nodes, [DigDev|Rest], [P|PRest], IOld, INew) :-
+    edgePlace(DigDev, Nodes, P, IOld),
+    updatedInfrastructure(P, IOld, ITmp),
+    placeDigitalDevices(edge, Nodes, Rest, PRest, ITmp, INew).
 placeDigitalDevices(_,_,[],[],I,I).
 
 updatedInfrastructure(p(_,_,_,_,P), I, INew) :-
