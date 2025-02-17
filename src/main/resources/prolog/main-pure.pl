@@ -6,7 +6,7 @@
 :- discontiguous placeDigitalDevices/6.
 
 :- consult('energysourcedata.pl').
-% :- consult('data.pl').
+:- consult('data.pl').
 
 % Energy and carbon budget per single digital device placement
 maxEnergy(500).
@@ -158,6 +158,17 @@ edgePlace(DigDev, Nodes, p(DigDev, Carb, M, E, Placement), I) :-
     maxEnergy(MaxE), maxCarbon(MaxC), maxNodes(MaxM), 
     E =< MaxE, Carb =< MaxC, M =< MaxM.
 
+cloudPlace(DigDev, p(DigDev, Carb, M, E, Placement), I) :-
+    digitalDevice(DigDev, _, Components),
+    member(A, Components), physicalDevice(NA, _, _, _, Actuators), act(A,HWA,_), member((A,_), Actuators), 
+    member(S, Components), physicalDevice(NS,_,_,Sensors,_), sense(S,HWS,_), member((S,_), Sensors),
+    subtract(Components, [A,S], Rest),
+    placeAllOnN(cloud, Rest, [on(S,NS,HWS),on(S,NA,HWA)], Placement, I), % Note: cloud is the id of the only cloud node
+    footprint(Placement, E, Carb, I), 
+    involvedNodes(Placement, _, M),
+    maxEnergy(MaxE), maxCarbon(MaxC), maxNodes(MaxM), 
+    E =< MaxE, Carb =< MaxC, M =< MaxM.
+
 placeAllOnN(N, [C|Cs], Placement, NewPlacement,I) :-
     physicalDevice(N, HWCaps, _, Sensors, Actuators),
     (
@@ -182,6 +193,10 @@ placeDigitalDevices(edge, Nodes, [DigDev|Rest], [P|PRest], IOld, INew) :-
     edgePlace(DigDev, Nodes, P, IOld),
     updatedInfrastructure(P, IOld, ITmp),
     placeDigitalDevices(edge, Nodes, Rest, PRest, ITmp, INew).
+placeDigitalDevices(cloud, _, [DigDev|Rest], [P|PRest], IOld, INew) :-
+    cloudPlace(DigDev, P, IOld),
+    updatedInfrastructure(P, IOld, ITmp),
+    placeDigitalDevices(edge, _, Rest, PRest, ITmp, INew).
 placeDigitalDevices(_,_,[],[],I,I).
 
 updatedInfrastructure(p(_,_,_,_,P), I, INew) :-
