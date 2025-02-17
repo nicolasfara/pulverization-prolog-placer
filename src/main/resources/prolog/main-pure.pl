@@ -9,9 +9,9 @@
 % :- consult('data.pl').
 
 % Energy and carbon budget per single digital device placement
-maxEnergy(3).
-maxCarbon(5).
-maxNodes(30).
+maxEnergy(500).
+maxCarbon(100).
+maxNodes(6).
 
 % optimalPlace/3 finds one of the placements with  
 % minimal number of nodes, lowest carbon emissions, and last, lowest energy consumption.
@@ -74,7 +74,9 @@ quickPlace(DigDev, Nodes, p(DigDev,C,M,E,Placement), I) :-
     digitalDevice(DigDev, K, Components),
     member((_,N),Nodes), placeKnowledge(K, N, KonN, I),
     placeComponents(Nodes,Components,N,[KonN],Placement, I),
+    write(Placement), nl,
     footprint(Placement,E,C,I), involvedNodes(Placement,_,M),
+    writeln(E), writeln(C), writeln(M),
     maxEnergy(MaxE), maxCarbon(MaxC), maxNodes(MaxM), 
     E =< MaxE, C =< MaxC, M =< MaxM.
 
