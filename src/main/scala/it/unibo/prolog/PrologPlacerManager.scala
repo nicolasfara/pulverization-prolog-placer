@@ -49,6 +49,7 @@ class PrologPlacerManager[T, P <: Position[P]](
     case "optimal"   => "opt"
     case "heuristic" => "heu"
     case "edge"      => "edge"
+    case "cloud"     => "cloud"
   }
   private var isConsulted = false
 
@@ -156,7 +157,7 @@ object PrologPlacerManager {
   private val APPLICATION_MOLECULE = new SimpleMolecule("applicationDevice")
   private val INFRASTRUCTURAL_MOLECULE = new SimpleMolecule("infrastructuralDevice")
   private val PROLOG_DIRECTORY = Path.of("src", "main", "resources", "prolog")
-  private val MAIN_FILE_NAME = "main.pl"
+  private val MAIN_FILE_NAME = "main-pure.pl"
   private val ENERGY_SOURCE_FILE_NAME = "energysourcedata.pl"
   private val PROLOG_MAIN_FILE = PROLOG_DIRECTORY.resolve(MAIN_FILE_NAME)
   private val ENERGY_SOURCE_DATA = PROLOG_DIRECTORY.resolve(ENERGY_SOURCE_FILE_NAME)

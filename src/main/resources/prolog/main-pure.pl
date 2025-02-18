@@ -74,9 +74,9 @@ quickPlace(DigDev, Nodes, p(DigDev,C,M,E,Placement), I) :-
     digitalDevice(DigDev, K, Components),
     member((_,N),Nodes), placeKnowledge(K, N, KonN, I),
     placeComponents(Nodes,Components,N,[KonN],Placement, I),
-    write(Placement), nl,
+    % write(Placement), nl,
     footprint(Placement,E,C,I), involvedNodes(Placement,_,M),
-    writeln(E), writeln(C), writeln(M),
+    % writeln(E), writeln(C), writeln(M),
     maxEnergy(MaxE), maxCarbon(MaxC), maxNodes(MaxM), 
     E =< MaxE, C =< MaxC, M =< MaxM.
 
@@ -163,7 +163,7 @@ cloudPlace(DigDev, p(DigDev, Carb, M, E, Placement), I) :-
     member(A, Components), physicalDevice(NA, _, _, _, Actuators), act(A,HWA,_), member((A,_), Actuators), 
     member(S, Components), physicalDevice(NS,_,_,Sensors,_), sense(S,HWS,_), member((S,_), Sensors),
     subtract(Components, [A,S], Rest),
-    placeAllOnN(cloud, Rest, [on(S,NS,HWS),on(S,NA,HWA)], Placement, I), % Note: cloud is the id of the only cloud node
+    placeAllOnN(cloud0, Rest, [on(S,NS,HWS),on(S,NA,HWA)], Placement, I), % Note: cloud is the id of the only cloud node
     footprint(Placement, E, Carb, I), 
     involvedNodes(Placement, _, M),
     maxEnergy(MaxE), maxCarbon(MaxC), maxNodes(MaxM), 

@@ -52,22 +52,26 @@ class PrologDeploymentUpdater[T, P <: Position[P]](
 
   private def updateFootprint(): Unit = {
     placerManager.updateTopology()
-    val overallPlacements = lastDeployment.flatMap(_.placements)
-    val globalFootprint = placerManager.getFootprint(overallPlacements)
-    val node = environment.getNodeByID(0)
-    node.setConcentration(new SimpleMolecule("Carbon"), globalFootprint.carbon.asInstanceOf[T])
-    node.setConcentration(new SimpleMolecule("Energy"), globalFootprint.energy.asInstanceOf[T])
+    if (lastDeployment != null) {
+      val overallPlacements = lastDeployment.flatMap(_.placements)
+      val globalFootprint = placerManager.getFootprint(overallPlacements)
+      val node = environment.getNodeByID(0)
+      node.setConcentration(new SimpleMolecule("Carbon"), globalFootprint.carbon.asInstanceOf[T])
+      node.setConcentration(new SimpleMolecule("Energy"), globalFootprint.energy.asInstanceOf[T])
+    }
   }
 
   private def updateDeployment(): Unit = {
     val (newDeployment, executionTime) = time(placerManager.getNewDeployment)
     lastDeployment = if (newDeployment.nonEmpty) newDeployment else lastDeployment
-    lastDeployment.foreach { case d @ DeviceDeployment(id, _, _, placements) =>
-      val currentNode = environment.getNodeByID(id)
-      currentNode.setConcentration(new SimpleMolecule("Deployment"), d.asInstanceOf[T])
-      placements.foreach(placeComponentPerDevice(_, currentNode))
+    if (lastDeployment != null) {
+      lastDeployment.foreach { case d@DeviceDeployment(id, _, _, placements) =>
+        val currentNode = environment.getNodeByID(id)
+        currentNode.setConcentration(new SimpleMolecule("Deployment"), d.asInstanceOf[T])
+        placements.foreach(placeComponentPerDevice(_, currentNode))
+      }
+      environment.getNodeByID(0).setConcentration(new SimpleMolecule("ExecutionTime"), executionTime.asInstanceOf[T])
     }
-    environment.getNodeByID(0).setConcentration(new SimpleMolecule("ExecutionTime"), executionTime.asInstanceOf[T])
   }
 
   private def placeComponentPerDevice(placement: Placement, nodeDevice: Node[T]): Unit = {

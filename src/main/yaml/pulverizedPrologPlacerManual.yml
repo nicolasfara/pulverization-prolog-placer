@@ -13,9 +13,17 @@ variables:
     language: kotlin
     formula: |
       (System.getenv("NODES") ?: "50").toInt()
-  nodes: &applicationNodesCount
+  nodes: &nodes
     type: ArbitraryVariable
     parameters: [ *envNodes, [*envNodes] ]
+
+  distance: &distances
+    language: scala
+    formula: 2 * math.sqrt(nodes.asInstanceOf[Int]).toInt
+
+  side: &side
+    language: scala
+    formula: nodes.asInstanceOf[Int] / math.sqrt(2)
 
   isBaselineEnv: &isBaselineEnv
     language: kotlin
@@ -28,7 +36,7 @@ variables:
   deploymentStrategyEnv: &deploymentStrategyEnv
     language: kotlin
     formula: |
-      System.getenv("DEPLOYMENT_STRATEGY") ?: "heuristic"
+      System.getenv("DEPLOYMENT_STRATEGY") ?: "cloud"
   deploymentStrategy: &deploymentStrategy
     type: ArbitraryVariable
     parameters: [ *deploymentStrategyEnv, [*deploymentStrategyEnv] ]
@@ -47,10 +55,10 @@ variables:
     parameters: [1.3, [1.3]]
   availableHwApplication: &availableHwApplication
     type: ArbitraryVariable
-    parameters: [ 8, [8] ]
+    parameters: [ 15, [15] ]
   availableHwInfrastructural: &availableHwInfrastructural
     type: ArbitraryVariable
-    parameters: [ 20, [20] ]
+    parameters: [ 20000, [20000] ]
   #------------------------------------------------------------------
   sensorsProgram: &sensorsProgram
     language: scala
@@ -103,7 +111,7 @@ launcher:
 
 network-model:
   type: ConnectWithinDistancesEdge
-  parameters: [10]
+  parameters: [*distances]
 
 _constants:
   retentionTime: &retentionTime 25.0
@@ -192,7 +200,7 @@ _programs:
           - type: LatencyDetector
             parameters: [ ]
   - program: &movement
-      - time-distribution: 30 # steps per minute
+      - time-distribution: 5 # steps per minute
         type: Event
         conditions: [ ]
         actions:
@@ -216,8 +224,24 @@ environment:
         - *availableHwInfrastructural
 
 deployments:
+  - type: SpecificPositions # Edge Servers
+    parameters: [
+      [ 250, 250 ],
+      #      [ 252, 252 ],
+      #      [ 8.2146077, 6.3485146 ],
+      #      [ 8.2055562, 6.3778687 ],
+      #      [ 8.1924837, 6.3458967 ],    ]
+    #    programs:
+    #      - *surrogateActuators
+    #      - *surrogateSensors
+    #      - *surrogateKnowledge
+    #      - *surrogateCommunication
+    #      - *surrogateBehavior
+    contents:
+      - molecule: infrastructuralDevice
+        concentration: true
   - type: Rectangle
-    parameters: [*applicationNodesCount, 0, 0, 50, 50]
+    parameters: [*nodes, 0, 0, *nodes, *nodes]
 #  - type: GraphStreamDeployment
 #    parameters: [ 15, "RandomEuclidean", 5 ]
     programs:
@@ -240,23 +264,6 @@ deployments:
     properties:
       - type: AllocatorProperty
         parameters: [ *programDag ]
-  - type: SpecificPositions # Edge Servers
-    parameters: [
-      [ 150, 150 ],
-      [ 152, 152 ],
-#      [ 8.2146077, 6.3485146 ],
-#      [ 8.2055562, 6.3778687 ],
-#      [ 8.1924837, 6.3458967 ],
-    ]
-#    programs:
-#      - *surrogateActuators
-#      - *surrogateSensors
-#      - *surrogateKnowledge
-#      - *surrogateCommunication
-#      - *surrogateBehavior
-    contents:
-      - molecule: infrastructuralDevice
-        concentration: true
 
 terminate:
   type: AfterTime

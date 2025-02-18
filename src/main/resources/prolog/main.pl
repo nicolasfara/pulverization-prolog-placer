@@ -6,9 +6,9 @@
 :- consult('data.pl').
 
 % Energy and carbon budget per single digital device placement
-maxEnergy(3).
-maxCarbon(5).
-maxNodes(30).
+maxEnergy(10).
+maxCarbon(10).
+maxNodes(5).
 
 % optimalPlace/3 finds one of the placements with
 % minimal number of nodes, lowest carbon emissions, and last, lowest energy consumption.

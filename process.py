@@ -443,8 +443,8 @@ if __name__ == '__main__':
     # Reset the index for Seaborn usage
     df_reset = dataframe.reset_index()
     # Define the strategies and baseline
-    strategies = ["edge", "optimal", "heuristic"]
-    baselines = [True, False]
+    strategies = ["edge", "cloud", "heuristic"]
+    baselines = [False]
     # Convert baseline to a string for FacetGrid
     df_reset["isBaseline"] = df_reset["isBaseline"].map({True: "Startup Deployment", False: "Continuous Deployment"})
     # Melt the dataframe to long format for Seaborn
