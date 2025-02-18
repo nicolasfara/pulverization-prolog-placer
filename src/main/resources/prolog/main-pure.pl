@@ -196,7 +196,7 @@ placeDigitalDevices(edge, Nodes, [DigDev|Rest], [P|PRest], IOld, INew) :-
 placeDigitalDevices(cloud, _, [DigDev|Rest], [P|PRest], IOld, INew) :-
     cloudPlace(DigDev, P, IOld),
     updatedInfrastructure(P, IOld, ITmp),
-    placeDigitalDevices(edge, _, Rest, PRest, ITmp, INew).
+    placeDigitalDevices(cloud, _, Rest, PRest, ITmp, INew).
 placeDigitalDevices(_,_,[],[],I,I).
 
 updatedInfrastructure(p(_,_,_,_,P), I, INew) :-
