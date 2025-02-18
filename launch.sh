@@ -4,7 +4,7 @@
 seeds=(0)
 nodes=(50 75 100 125 150)
 baseline=(false)
-strategy=("edge" "cloud" "heuristic") # "optimal")
+strategy=("edge" "heuristic") # "optimal")
 
 # Available cores minus one
 num_cores=$(nproc --all)

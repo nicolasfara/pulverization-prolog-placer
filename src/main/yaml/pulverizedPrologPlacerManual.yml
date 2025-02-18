@@ -12,7 +12,7 @@ variables:
   envNodes: &envNodes
     language: kotlin
     formula: |
-      (System.getenv("NODES") ?: "50").toInt()
+      (System.getenv("NODES") ?: "100").toInt()
   nodes: &nodes
     type: ArbitraryVariable
     parameters: [ *envNodes, [*envNodes] ]
@@ -36,7 +36,7 @@ variables:
   deploymentStrategyEnv: &deploymentStrategyEnv
     language: kotlin
     formula: |
-      System.getenv("DEPLOYMENT_STRATEGY") ?: "cloud"
+      System.getenv("DEPLOYMENT_STRATEGY") ?: "heuristic"
   deploymentStrategy: &deploymentStrategy
     type: ArbitraryVariable
     parameters: [ *deploymentStrategyEnv, [*deploymentStrategyEnv] ]
@@ -193,12 +193,12 @@ _programs:
 #            parameters: [ *behaviorProgram, *retentionTime, *programDag ]
 #      - program: send
   ## MODULARIZATION RUNTIME --
-  - program: &latencyDetector
-      - time-distribution: 1
-        type: Event
-        actions:
-          - type: LatencyDetector
-            parameters: [ ]
+#  - program: &latencyDetector
+#      - time-distribution: 1
+#        type: Event
+#        actions:
+#          - type: LatencyDetector
+#            parameters: [ ]
   - program: &movement
       - time-distribution: 5 # steps per minute
         type: Event
@@ -211,6 +211,8 @@ environment:
   type: Continuous2DEnvironment
   parameters: []
   global-programs:
+    - time-distribution: 0.5
+      type: LatencyDetector
     - time-distribution: 0.5
       type: PrologDeploymentUpdater
       parameters:
@@ -257,7 +259,7 @@ deployments:
 #      - *behavior
 #      - *surrogateBehavior
       - *movement
-      - *latencyDetector
+#      - *latencyDetector
 #      - *modularizationRuntime
     contents:
       - molecule: applicationDevice
