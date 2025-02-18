@@ -227,6 +227,7 @@ deployments:
   - type: SpecificPositions # Edge Servers
     parameters: [
       [ 250, 250 ],
+    ]
       #      [ 252, 252 ],
       #      [ 8.2146077, 6.3485146 ],
       #      [ 8.2055562, 6.3778687 ],
