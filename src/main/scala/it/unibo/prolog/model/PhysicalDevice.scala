@@ -32,13 +32,26 @@ final case class PhysicalDevice[T, P <: Position[P]](
     val totalHw =
       if (appLevel) simulationParameters.availableHwApplication else simulationParameters.availableHwInfrastructural
     val availableHw =
-      if (appLevel) simulationParameters.availableHwApplication else simulationParameters.availableHwInfrastructural
+      if (appLevel) simulationParameters.availableHwApplication else simulationParameters.freeHwInfrastructural
     // e.g. energySourceMix(robot2,[(0.1,gas),(0.8,coal),(0.1,onshorewind)])
     val node = env.getNodeByID(id)
+    val period = 300
+    def energyMixDriverFunction(time: Double, counterPhase: Boolean = true): Double = {
+      val shift = if (counterPhase) math.Pi / 2 else 0
+      val jitter = random.nextDouble() * 10
+      val jitterTime = time + jitter
+      math.abs(math.sin((jitterTime * math.Pi) / period - shift))
+    }
+    val simulationTime = env.getSimulation.getTime.toDouble
     val renewablePercentage = if (appLevel) {
-      math.abs(math.sin(env.getSimulation.getTime.toDouble / 100 + random.nextDouble())) * simulationParameters.maxRenewableEnergyApplication
+      energyMixDriverFunction(simulationTime, node.getId % 2 == 0) * simulationParameters.maxRenewableEnergyApplication
+      // if (node.getId % 3 == 0 || node.getId % 3 == 1) {
+      //   0.2
+      // } else {
+      //   0.9
+      // }
     } else {
-      math.abs(math.sin(env.getSimulation.getTime.toDouble / 100 + random.nextDouble())) * simulationParameters.maxRenewableEnergyInfrastructural
+      simulationParameters.maxRenewableEnergyInfrastructural
     }
     val coalPercentage = 1 - renewablePercentage
     node.setConcentration(new SimpleMolecule("renewablePercentage"), renewablePercentage.asInstanceOf[T])

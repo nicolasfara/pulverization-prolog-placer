@@ -15,6 +15,7 @@ import org.apache.commons.math3.random.RandomGenerator
 import org.jpl7.{Atom, Query, Term, Variable}
 
 import java.nio.file.{Files, Path, StandardCopyOption, StandardOpenOption}
+import scala.concurrent.{Await, Future, TimeoutException}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
 class PrologPlacerManager[T, P <: Position[P]](
@@ -38,12 +39,12 @@ class PrologPlacerManager[T, P <: Position[P]](
       destinationDirectory.resolve(MAIN_FILE_NAME),
       StandardCopyOption.REPLACE_EXISTING,
     )
-//    Files.readString(copied).replace("<max_nodes>", environment.getNodes.size().toString) match {
-//      case content =>
-//        val fileToWrite = destinationDirectory.resolve(MAIN_FILE_NAME)
-//        Files.write(fileToWrite, content.getBytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
-//        fileToWrite
-//    }
+//   Files.readString(copied).replace("<carbon>", (8 * environment.getNodes.size()).toString) match {
+//     case content =>
+//       val fileToWrite = destinationDirectory.resolve(MAIN_FILE_NAME)
+//       Files.write(fileToWrite, content.getBytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+//       fileToWrite
+//   }
   }
   private lazy val placementPredicate = deploymentStrategy match {
     case "optimal"   => "opt"
@@ -78,23 +79,34 @@ class PrologPlacerManager[T, P <: Position[P]](
       require(makeResult.hasSolution, "Cannot make the knowledge base")
       makeResult.close()
     }
-    val queryResult = new Query(
-      "placeAll",
-      Array[Term](
-        new Atom(placementPredicate),
-        new Variable("P"),
-        new Variable("C"),
-        new Variable("E"),
-      ),
-    )
-    val solution = queryResult.oneSolution()
-    if (solution == null) {
-      queryResult.close()
-      List.empty
-    } else {
-      val res = solutionParser.parseDeploymentSolution(solution.get("P"))
-      queryResult.close()
-      res
+    try {
+      import scala.concurrent.duration._
+      import scala.concurrent.ExecutionContext.Implicits.global
+      Await.result(
+        Future {
+          val queryResult = new Query(
+            "placeAll",
+            Array[Term](
+              new Atom(placementPredicate),
+              new Variable("P"),
+              new Variable("C"),
+              new Variable("E"),
+            ),
+          )
+          val solution = queryResult.oneSolution()
+          if (solution == null) {
+            queryResult.close()
+            List.empty
+          } else {
+            val res = solutionParser.parseDeploymentSolution(solution.get("P"))
+            queryResult.close()
+            res
+          }
+        },
+        5.seconds,
+      )
+    } catch {
+      case _: TimeoutException => List.empty
     }
   }
 

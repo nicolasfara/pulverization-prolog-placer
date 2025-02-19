@@ -2,9 +2,9 @@
 
 # Define three lists
 seeds=(0)
-nodes=(50 75 100 125 150)
+nodes=(50 75 100)
 baseline=(false)
-strategy=("edge" "heuristic") # "optimal")
+strategy=("edge" "cloud" "heuristic") # "optimal")
 
 # Available cores minus one
 num_cores=$(nproc --all)

@@ -15,14 +15,14 @@ final case class Device[T, P <: Position[P]](id: Int, physicalTwin: PhysicalDevi
      * % sense(PhySense, HWReqs, LatToK).
      * % act(AId, HWReqs, LatToK).
      */
-    val knowledgeHwReqs = 1
     val commHwReqs = 0.5
-    val commLatencyToK = 90
     val behaviorHwReqs = 5
-    val behaviorLatencyToK = 90
     val sensorHwReqs = 0.25
-    val sensorLatencyToK = 25
     val actuatorHwReqs = 0.25
+    val knowledgeHwReqs = 1
+    val commLatencyToK = 300
+    val behaviorLatencyToK = 300
+    val sensorLatencyToK = 25
     val actuatorLatencyToK = 25
     s"""
        |digitalDevice($name, $K_NAME$i, [s$i, a$i, b$i, c$i]).

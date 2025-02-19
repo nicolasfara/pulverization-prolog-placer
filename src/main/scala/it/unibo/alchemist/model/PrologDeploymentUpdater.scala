@@ -17,6 +17,7 @@ class PrologDeploymentUpdater[T, P <: Position[P]](
     pueInfrastructural: Double,
     availableHwApplication: Int,
     availableHwInfrastructural: Int,
+    freeHwInfrastructural: Int,
 ) extends AbstractGlobalReaction[T, P](environment, timeDistribution) {
   private val RE_DEPLOYMENT_TIME = 30
   private lazy val placerManager = new PrologPlacerManager[T, P](
@@ -30,6 +31,7 @@ class PrologDeploymentUpdater[T, P <: Position[P]](
       pueInfrastructural,
       availableHwApplication,
       availableHwInfrastructural,
+      freeHwInfrastructural,
     ),
   )
   private var lastDeployment: List[DeviceDeployment] = _

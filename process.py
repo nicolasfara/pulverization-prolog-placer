@@ -438,18 +438,21 @@ if __name__ == '__main__':
     data = means['prolog-placer'].squeeze()
     dataframe = data.to_dataframe()
     print(dataframe)
-
-    print("geneating chart for Latency")
-    # Reset the index for Seaborn usage
+    # Reset the index to get 'nodes', 'deploymentStrategy', and 'time' as columns
     df_reset = dataframe.reset_index()
-    # Define the strategies and baseline
-    strategies = ["edge", "cloud", "heuristic"]
-    baselines = [False]
-    # Convert baseline to a string for FacetGrid
-    df_reset["isBaseline"] = df_reset["isBaseline"].map({True: "Startup Deployment", False: "Continuous Deployment"})
+    df_reset["nodes"] = df_reset["nodes"].astype(int)
+    df_reset = df_reset[df_reset["isBaseline"] == False].copy()
+    df_reset["deploymentStrategy"] = df_reset["deploymentStrategy"].map({
+        "cloud": "Cloud only",
+        "edge": "Edge only",
+        "heuristic": "Placer",
+    })
+
+    print("Generating chart for Latency")
+    df_filtered = df_reset.copy()    
     # Melt the dataframe to long format for Seaborn
-    df_melted = df_reset.melt(
-        id_vars=["time", "isBaseline", "deploymentStrategy"],
+    df_melted = df_filtered.melt(
+        id_vars=["time", "nodes", "deploymentStrategy"],
         value_vars=["IntraLatency[mean]", "InterLatency[mean]"],
         var_name="Latency Type",
         value_name="Latency"
@@ -459,58 +462,64 @@ if __name__ == '__main__':
         "IntraLatency[mean]": "Intra Device Latency",
         "InterLatency[mean]": "Inter Device Latency"
     })
-    # Create a FacetGrid with 2x2 layout
-    g = sns.FacetGrid(
-        df_melted,
-        col="isBaseline",
-        row="deploymentStrategy",
-        sharex=True,
-        sharey=True,
-        aspect=1.5,
-        col_order=["Startup Deployment", "Continuous Deployment"],  # Left to right order
-        row_order=strategies,  # Top to bottom order
+    # Create a FacetGrid with:
+    # - First row containing all nodes from the first strategy
+    # - Other rows containing nodes for each remaining strategy
+    g = sns.relplot(
+        data=df_melted,
+        x="time",
+        y="Latency",
+        hue="Latency Type",
+        row="deploymentStrategy",  # Custom row grouping
+        col="nodes",
+        kind="line",
+        height=3,
+        aspect=1.2,
+        facet_kws={
+            "sharey": True,
+        }  # Independent y-axis per facet
     )
-    # Map lineplot for the melted dataframe
-    g.map_dataframe(sns.lineplot, x="time", y="Latency", hue="Latency Type")
-    # Adjust titles, labels, and legends
-    g.set_titles(row_template="Strategy: {row_name}", col_template="{col_name}")
-    g.set_axis_labels("Time", "Latency")
-    g.add_legend(title="Latency Type"),
-    # Save the plot to a file
-    g.savefig('charts/prolog-placer/IntraLatency_vs_InterLatency.pdf')
+    g.set(yscale="symlog", ylim=(0, None))
+    # Adjust titles and labels
+    g.set_titles(row_template="Deployment: {row_name}", col_template="Nodes: {col_name}")
+    g.set_axis_labels("Time (minutes)", "Latency (ms)")
+    # Save and show the plot
+    g.savefig('charts/prolog-placer/IntraLatency_vs_InterLatency_perNodes_perStrategy.pdf')
 
-    print("geneating chart for Carbon vs Energy")
+    print("geneating chart for Carbon vs Energy")# Filter the dataframe (df_reset contains your data)
+    df_filtered = df_reset.copy()
     # Melt the dataframe to long format for Seaborn
-    df_melted = df_reset.melt(
-        id_vars=["time", "isBaseline", "deploymentStrategy"], 
+    df_melted = df_filtered.melt(
+        id_vars=["time", "nodes", "deploymentStrategy"],
         value_vars=["Carbon[mean]", "Energy[mean]"],
-        var_name="Metric", 
+        var_name="Metric",
         value_name="Value"
     )
-    # Replace legend values with custom names
+    # Replace legend values with custom names for Metric
     df_melted["Metric"] = df_melted["Metric"].replace({
         "Carbon[mean]": "Carbon Emission",
         "Energy[mean]": "Energy Consumption"
     })
-    # Create FacetGrid with 2x2 layout
-    g = sns.FacetGrid(
-        df_melted,
-        col="isBaseline",
-        row="deploymentStrategy",
-        sharex=True,
-        sharey=True,
-        aspect=1.5,
-        col_order=["Startup Deployment", "Continuous Deployment"],
-        row_order=strategies, 
+    # Create the FacetGrid:
+    g = sns.relplot(
+        data=df_melted,
+        x="time",
+        y="Value",
+        hue="Metric",
+        row="deploymentStrategy",  # Custom row grouping based on deploymentStrategy
+        col="nodes",
+        kind="line",
+        height=3,
+        aspect=1.2,  # Aspect ratio (you can adjust this if needed)
+        facet_kws={
+            "sharey": True,  # Independent y-axis per facet
+        }
     )
-    # Use map_dataframe with hue to differentiate the metrics
-    g.map_dataframe(sns.lineplot, x="time", y="Value", hue="Metric")
-    # Set titles and labels
-    g.set_titles(row_template="Strategy: {row_name}", col_template="{col_name}")
-    g.set_axis_labels("Time", "Value")
-    g.add_legend(title="Metric")
-    # Save the figure
-    g.savefig("charts/prolog-placer/Carbon_vs_Energy.pdf")
+    # Adjust titles and labels
+    g.set_titles(row_template="Deployment: {row_name}", col_template="Nodes: {col_name}")
+    g.set_axis_labels("Time (minutes)", "Value")
+    # Save and show the plot
+    g.savefig('charts/prolog-placer/Carbon_vs_Energy_perNodes_perStrategy.pdf')
 
     import math
     

@@ -9,8 +9,8 @@
 :- consult('data.pl').
 
 % Energy and carbon budget per single digital device placement
-maxEnergy(500).
-maxCarbon(100).
+maxEnergy(10).
+maxCarbon(10).
 maxNodes(6).
 
 % optimalPlace/3 finds one of the placements with  
@@ -84,30 +84,34 @@ quickPlace(DigDev, Nodes, p(DigDev,C,M,E,Placement), I) :-
 % that support their hardware requirements, and the requirements on
 % latency towards the node where the component K is placed. 
 % Note: cumulative hardware consumption is checked incrementally
+%placeComponents(Nodes,[C|Cs],NK,Placement,NewPlacement,I):-
+%    member(on(_,N,_), Placement), physicalDevice(N, HWCaps, _, Sensors, Actuators),
+%    (
+%        (sense(C, HWReqs, LatToK), member((C,_), Sensors)); (act(C, HWReqs, LatToK), member((C,_), Actuators))
+%    ),
+%    latencyOK(N,NK,LatToK),
+%    hwOK(N,Placement,HWCaps,HWReqs,I),
+%    placeComponents(Nodes,Cs,NK,[on(C,N,HWReqs)|Placement],NewPlacement,I).
 placeComponents(Nodes,[C|Cs],NK,Placement,NewPlacement,I):-
-    member(on(_,N,_), Placement), physicalDevice(N, HWCaps, _, Sensors, Actuators),
+    member((_,N),Nodes),
+    % \+ member(on(_,N,_), Placement),
+    physicalDevice(N, HWCaps, _, Sensors, Actuators), 
     (
         (sense(C, HWReqs, LatToK), member((C,_), Sensors)); (act(C, HWReqs, LatToK), member((C,_), Actuators))
     ),
     latencyOK(N,NK,LatToK),
     hwOK(N,Placement,HWCaps,HWReqs,I),
     placeComponents(Nodes,Cs,NK,[on(C,N,HWReqs)|Placement],NewPlacement,I).
-placeComponents(Nodes,[C|Cs],NK,Placement,NewPlacement,I):-
-    member((_,N),Nodes), \+ member(on(_,N,_), Placement), physicalDevice(N, HWCaps, _, Sensors, Actuators), 
-    (
-        (sense(C, HWReqs, LatToK), member((C,_), Sensors)); (act(C, HWReqs, LatToK), member((C,_), Actuators))
-    ),
-    latencyOK(N,NK,LatToK),
-    hwOK(N,Placement,HWCaps,HWReqs,I),
-    placeComponents(Nodes,Cs,NK,[on(C,N,HWReqs)|Placement],NewPlacement,I).
+% placeComponents(Nodes, [C|Cs],NK,Placement,NewPlacement,I):-
+%     member(on(_,N,_), Placement), physicalDevice(N, HWCaps, _, _, _),
+%     (behaviour(C, HWReqs, LatToK); communication(C, HWReqs, LatToK)),
+%     latencyOK(N,NK,LatToK),
+%     hwOK(N,Placement,HWCaps,HWReqs,I),
+%     placeComponents(Nodes,Cs,NK,[on(C,N,HWReqs)|Placement],NewPlacement,I).
 placeComponents(Nodes, [C|Cs],NK,Placement,NewPlacement,I):-
-    member(on(_,N,_), Placement), physicalDevice(N, HWCaps, _, _, _),
-    (behaviour(C, HWReqs, LatToK); communication(C, HWReqs, LatToK)),
-    latencyOK(N,NK,LatToK),
-    hwOK(N,Placement,HWCaps,HWReqs,I),
-    placeComponents(Nodes,Cs,NK,[on(C,N,HWReqs)|Placement],NewPlacement,I).
-placeComponents(Nodes, [C|Cs],NK,Placement,NewPlacement,I):-
-    member((_,N),Nodes), \+ member(on(_,N,_), Placement), physicalDevice(N, HWCaps, _, _, _), 
+    member((_,N),Nodes),
+    % \+ member(on(_,N,_), Placement),
+    physicalDevice(N, HWCaps, _, _, _), 
     (behaviour(C, HWReqs, LatToK); communication(C, HWReqs, LatToK)),
     latencyOK(N,NK,LatToK),
     hwOK(N,Placement,HWCaps,HWReqs,I),

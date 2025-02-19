@@ -68,9 +68,13 @@ object DeploymentGenerator {
     }
 
     prologProgram.append(s"""
-        |energyConsumption(_, L, 0.1) :- L < 10.
-        |energyConsumption(_, L, 0.2) :- L >= 10, L < 40.
-        |energyConsumption(_, L, 0.3) :- L >= 40.
+        |energyConsumption(cloud0, L, 0.05) :- L < 0.01.
+        |energyConsumption(cloud0, L, 0.2) :- L >= 0.01, L < 0.02.
+        |energyConsumption(cloud0, L, 0.250) :- L >= 0.02.
+        |
+        |energyConsumption(N, L, 0.1) :- dif(N,cloud0), L < 10.
+        |energyConsumption(N, L, 0.2) :- dif(N,cloud0), L >= 10, L < 40.
+        |energyConsumption(N, L, 0.3) :- dif(N, cloud0), L >= 40.
         |""".stripMargin)
 
     for {

@@ -21,9 +21,9 @@ variables:
     language: scala
     formula: 2 * math.sqrt(nodes.asInstanceOf[Int]).toInt
 
-  side: &side
+  cloudCoordinate: &cloudCoordinate
     language: scala
-    formula: nodes.asInstanceOf[Int] / math.sqrt(2)
+    formula: 2 * nodes.asInstanceOf[Int]
 
   isBaselineEnv: &isBaselineEnv
     language: kotlin
@@ -43,10 +43,10 @@ variables:
 
   maxRenewableEnergyApplication: &maxRenewableEnergyApplication
     language: scala
-    formula: 0.6
+    formula: 0.9
   maxRenewableEnergyInfrastructural: &maxRenewableEnergyInfrastructural
     language: scala
-    formula: 0.3
+    formula: 0.5
   pueApplication: &pueApplication
     type: ArbitraryVariable
     parameters: [1.2, [1.2]]
@@ -55,10 +55,16 @@ variables:
     parameters: [1.3, [1.3]]
   availableHwApplication: &availableHwApplication
     type: ArbitraryVariable
-    parameters: [ 15, [15] ]
+    parameters: [ 60, [60] ]
+  availHw: &availHw # 7 is the sum oh HW of all the 5 components
+    language: scala
+    formula: 7 * envNodes.asInstanceOf[Int]
   availableHwInfrastructural: &availableHwInfrastructural
     type: ArbitraryVariable
-    parameters: [ 20000, [20000] ]
+    parameters: [ *availHw, [*availHw] ]
+  freeHwInfrastructural: &freeHwInfrastructural
+    type: ArbitraryVariable
+    parameters: [ *availHw, [*availHw] ]
   #------------------------------------------------------------------
   sensorsProgram: &sensorsProgram
     language: scala
@@ -205,7 +211,7 @@ _programs:
         conditions: [ ]
         actions:
           - type: BrownianMove
-            parameters: [ 1 ]
+            parameters: [ 0.2 ]
 
 environment:
   type: Continuous2DEnvironment
@@ -224,11 +230,12 @@ environment:
         - *pueInfrastructural
         - *availableHwApplication
         - *availableHwInfrastructural
+        - *freeHwInfrastructural
 
 deployments:
   - type: SpecificPositions # Edge Servers
     parameters: [
-      [ 250, 250 ],
+      [ *cloudCoordinate, *cloudCoordinate ],
     ]
       #      [ 252, 252 ],
       #      [ 8.2146077, 6.3485146 ],

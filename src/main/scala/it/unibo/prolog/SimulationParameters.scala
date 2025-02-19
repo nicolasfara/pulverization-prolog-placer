@@ -7,4 +7,5 @@ final case class SimulationParameters(
     pueInfrastructural: Double,
     availableHwApplication: Int,
     availableHwInfrastructural: Int,
+    freeHwInfrastructural: Int,
 )

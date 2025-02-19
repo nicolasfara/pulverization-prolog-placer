@@ -2,11 +2,11 @@
   {
     "type": "class it.unibo.alchemist.boundary.gui.effects.DrawShape",
     "curIncarnation": "surrogatescafi",
-    "mode": "FILL_RECTANGLE",
+    "mode": "FILL_ELLIPSE",
     "red": {
       "max": 255,
       "min": 0,
-      "val": 0
+      "val": 255
     },
     "blue": {
       "max": 255,
@@ -31,7 +31,7 @@
     "size": {
       "max": 100,
       "min": 0,
-      "val": 20
+      "val": 26
     },
     "molFilter": false,
     "molString": "",
@@ -56,7 +56,7 @@
       "val": 10
     },
     "colorCache": {
-      "value": -16777216
+      "value": -65536
     }
   },
   {
@@ -146,19 +146,19 @@
     "scaleFactor": {
       "max": 100,
       "min": 0,
-      "val": 49
+      "val": 50
     },
     "size": {
       "max": 100,
       "min": 0,
-      "val": 30
+      "val": 54
     },
     "molFilter": true,
     "molString": "infrastructuralDevice",
     "molPropertyFilter": true,
     "property": "",
     "writingPropertyValue": false,
-    "c": "ALPHA",
+    "c": "GREEN",
     "reverse": true,
     "propoom": {
       "max": 10,
