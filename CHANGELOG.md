@@ -1,3 +1,17 @@
+## [1.6.1](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.6.0...1.6.1) (2025-02-19)
+
+### Dependency updates
+
+* **deps:** update python docker tag to v3.13.2 ([#49](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/49)) ([7c834b1](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/7c834b1b09985933c4b594d8731cc905445a0ac8))
+
+### Performance improvements
+
+* improve simulation times ([5c4429c](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/5c4429c34b73bd1727549a4ebad9878136de1ce9))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.6.0 [skip ci] ([8068d2d](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/8068d2d58d87c91612d787274021b0183a383fe7))
+
 ## [1.6.0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.5.1...1.6.0) (2025-02-17)
 
 ### Features
