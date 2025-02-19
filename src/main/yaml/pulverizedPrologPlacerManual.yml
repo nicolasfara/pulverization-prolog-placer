@@ -302,3 +302,6 @@ export:
       - molecule: ExecutionTime
         aggregators: [ mean ]
         value-filter: onlyfinite
+      - molecule: renewablePercentage
+        aggregators: [ mean ]
+        value-filter: onlyfinite

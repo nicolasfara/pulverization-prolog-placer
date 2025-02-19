@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Define three lists
-seeds=(0)
+seeds=(0 1 2 3)
 nodes=(50 75 100)
 baseline=(false)
 strategy=("edge" "cloud" "heuristic") # "optimal")

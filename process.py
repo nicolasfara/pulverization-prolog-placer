@@ -443,7 +443,7 @@ if __name__ == '__main__':
     df_reset["nodes"] = df_reset["nodes"].astype(int)
     df_reset = df_reset[df_reset["isBaseline"] == False].copy()
     df_reset["deploymentStrategy"] = df_reset["deploymentStrategy"].map({
-        "cloud": "Cloud only",
+        # "cloud": "Cloud only",
         "edge": "Edge only",
         "heuristic": "Placer",
     })
@@ -518,69 +518,85 @@ if __name__ == '__main__':
     # Adjust titles and labels
     g.set_titles(row_template="Deployment: {row_name}", col_template="Nodes: {col_name}")
     g.set_axis_labels("Time (minutes)", "Value")
+    # # Add secondary y-axis for renewable energy percentage
+    # for ax, (_, subdata) in zip(g.axes.flat, df_reset.groupby(["deploymentStrategy", "nodes"])):
+    #     ax2 = ax.twinx()  # Create a twin y-axis
+    #     sns.lineplot(
+    #         data=subdata,
+    #         x="time",
+    #         y="renewablePercentage[mean]",
+    #         ax=ax2,
+    #         color="green",
+    #         linestyle="dashed",
+    #         label="Renewable %"
+    #     )
+    #     ax2.set_ylabel("Renewable Energy (%)")
+    #     # ax2.spines["right"].set_color("green")
+    #     # ax2.yaxis.label.set_color("green")
+    #     ax2.tick_params(axis='y', colors="green")
     # Save and show the plot
     g.savefig('charts/prolog-placer/Carbon_vs_Energy_perNodes_perStrategy.pdf')
 
-    import math
-    
-    print("geneating chart for Execution Time")
-    # Filter out baseline rows
-    df_filtered = dataframe[dataframe.index.get_level_values("isBaseline") == False].reset_index()
-    # Convert execution time to seconds
-    df_filtered["ExecutionTime[mean]"] = df_filtered["ExecutionTime[mean]"] / 1e6
-    # Create FacetGrid for subplots
-    g = sns.FacetGrid(
-        df_filtered,
-        col="nodes",  # One subplot per unique node count
-        col_wrap=int(math.sqrt(df_filtered["nodes"].nunique())),  # Arrange in a grid
-        sharey=True,  # Keep y-axis scale consistent across subplots
-        aspect=1.5,
-        # height=5  # Adjust subplot size
-    )
-    # Add line plots
-    g.map_dataframe(
-        sns.lineplot,
-        x="time",
-        y="ExecutionTime[mean]",
-        hue="deploymentStrategy",
-    )
-    # Apply log scale & labels in a single call
-    g.set(
-        yscale="log",
-        xlabel="Time",
-        ylabel="Execution Time (ms)"
-    )
-    # Adjust titles & legend
-    g.set_titles(col_template="Nodes: {col_name}")
-    g.add_legend(title="Deployment Strategy")
-    g.set(yscale="symlog", ylim=(0, None))  # Log scale for better visibility if values vary widely
-    # Save the figure directly
-    g.savefig("charts/prolog-placer/ExecutionTime_evolution.pdf")
-
-    print("geneating chart for Execution Time Scaling")
-    # Filter out baseline rows and reset the index
-    df_filtered = dataframe[dataframe.index.get_level_values("isBaseline") == False].reset_index()
-    # Convert execution time to seconds
-    df_filtered["ExecutionTime[mean]"] = df_filtered["ExecutionTime[mean]"] / 1e6  # Convert to ms
-    # Create the Seaborn lineplot with error bars
-    g = sns.relplot(
-        data=df_filtered,
-        x="nodes",
-        y="ExecutionTime[mean]",
-        hue="deploymentStrategy",
-        style="deploymentStrategy",  # Different styles if needed
-        kind="line",  # Use line plot
-        markers=True,  # Adds markers to show actual data points
-        dashes=False,  # Disable dashes for lines
-        errorbar="sd",  # Show standard deviation as error bars
-        aspect=2,  # Set the aspect ratio for the plot
-    )
-    # Set labels, title, and other properties
-    g.set_axis_labels("Number of Nodes", "Average Execution Time (ms)")
-    g.set_titles("Execution Time Scaling with Node Count")
-    g.set(yscale="symlog", ylim=(0, None))  # Log scale for better visibility if values vary widely
-    # g.despine(left=True)  # Remove left spines for a cleaner look
-    # # Add legend with a title
-    # g._legend.set_title("Deployment Strategy")
-    # Save the plot
-    g.savefig('charts/prolog-placer/ExecutionTime_scaling.pdf')
+    # import math
+    #
+    # print("geneating chart for Execution Time")
+    # # Filter out baseline rows
+    # df_filtered = dataframe[dataframe.index.get_level_values("isBaseline") == False].reset_index()
+    # # Convert execution time to seconds
+    # df_filtered["ExecutionTime[mean]"] = df_filtered["ExecutionTime[mean]"] / 1e6
+    # # Create FacetGrid for subplots
+    # g = sns.FacetGrid(
+    #     df_filtered,
+    #     col="nodes",  # One subplot per unique node count
+    #     col_wrap=int(math.sqrt(df_filtered["nodes"].nunique())),  # Arrange in a grid
+    #     sharey=True,  # Keep y-axis scale consistent across subplots
+    #     aspect=1.5,
+    #     # height=5  # Adjust subplot size
+    # )
+    # # Add line plots
+    # g.map_dataframe(
+    #     sns.lineplot,
+    #     x="time",
+    #     y="ExecutionTime[mean]",
+    #     hue="deploymentStrategy",
+    # )
+    # # Apply log scale & labels in a single call
+    # g.set(
+    #     yscale="log",
+    #     xlabel="Time",
+    #     ylabel="Execution Time (ms)"
+    # )
+    # # Adjust titles & legend
+    # g.set_titles(col_template="Nodes: {col_name}")
+    # g.add_legend(title="Deployment Strategy")
+    # g.set(yscale="symlog", ylim=(0, None))  # Log scale for better visibility if values vary widely
+    # # Save the figure directly
+    # g.savefig("charts/prolog-placer/ExecutionTime_evolution.pdf")
+    #
+    # print("geneating chart for Execution Time Scaling")
+    # # Filter out baseline rows and reset the index
+    # df_filtered = dataframe[dataframe.index.get_level_values("isBaseline") == False].reset_index()
+    # # Convert execution time to seconds
+    # df_filtered["ExecutionTime[mean]"] = df_filtered["ExecutionTime[mean]"] / 1e6  # Convert to ms
+    # # Create the Seaborn lineplot with error bars
+    # g = sns.relplot(
+    #     data=df_filtered,
+    #     x="nodes",
+    #     y="ExecutionTime[mean]",
+    #     hue="deploymentStrategy",
+    #     style="deploymentStrategy",  # Different styles if needed
+    #     kind="line",  # Use line plot
+    #     markers=True,  # Adds markers to show actual data points
+    #     dashes=False,  # Disable dashes for lines
+    #     errorbar="sd",  # Show standard deviation as error bars
+    #     aspect=2,  # Set the aspect ratio for the plot
+    # )
+    # # Set labels, title, and other properties
+    # g.set_axis_labels("Number of Nodes", "Average Execution Time (ms)")
+    # g.set_titles("Execution Time Scaling with Node Count")
+    # g.set(yscale="symlog", ylim=(0, None))  # Log scale for better visibility if values vary widely
+    # # g.despine(left=True)  # Remove left spines for a cleaner look
+    # # # Add legend with a title
+    # # g._legend.set_title("Deployment Strategy")
+    # # Save the plot
+    # g.savefig('charts/prolog-placer/ExecutionTime_scaling.pdf')
