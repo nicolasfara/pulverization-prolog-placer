@@ -194,7 +194,9 @@ if __name__ == '__main__':
     timeColumnName = 'time'
     logarithmicTime = False
     # One or more variables are considered random and "flattened"
-    seedVars = ['seed']
+    # seedVars = ['seed']
+    seedVars = []
+
     # Label mapping
     class Measure:
         def __init__(self, description, unit = None):
