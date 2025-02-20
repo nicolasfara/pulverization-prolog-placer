@@ -459,8 +459,8 @@ if __name__ == '__main__':
     )
     # Replace legend values with custom names
     df_melted["Latency Type"] = df_melted["Latency Type"].replace({
-        "IntraLatency[mean]": "Intra Device Latency",
-        "InterLatency[mean]": "Inter Device Latency"
+        "IntraLatency[mean]": "Intra-components latency",
+        "InterLatency[mean]": "Inter-device latency"
     })
     # Create a FacetGrid with:
     # - First row containing all nodes from the first strategy
@@ -475,11 +475,12 @@ if __name__ == '__main__':
         kind="line",
         height=3,
         aspect=1.2,
+        errorbar="sd",
         facet_kws={
             "sharey": True,
         }  # Independent y-axis per facet
     )
-    g.set(yscale="symlog", ylim=(0, None))
+    # g.set(yscale="symlog", ylim=(0, None))
     # Adjust titles and labels
     g.set_titles(row_template="Deployment: {row_name}", col_template="Nodes: {col_name}")
     g.set_axis_labels("Time (minutes)", "Latency (ms)")
@@ -511,6 +512,7 @@ if __name__ == '__main__':
         kind="line",
         height=3,
         aspect=1.2,  # Aspect ratio (you can adjust this if needed)
+        errorbar="sd",  # Show standard deviation as error bars
         facet_kws={
             "sharey": True,  # Independent y-axis per facet
         }

@@ -206,12 +206,12 @@ _programs:
 #          - type: LatencyDetector
 #            parameters: [ ]
   - program: &movement
-      - time-distribution: 5 # steps per minute
+      - time-distribution: 10 # steps per minute
         type: Event
         conditions: [ ]
         actions:
           - type: BrownianMove
-            parameters: [ 0.2 ]
+            parameters: [ 0.5 ]
 
 environment:
   type: Continuous2DEnvironment
