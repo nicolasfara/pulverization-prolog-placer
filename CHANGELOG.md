@@ -1,3 +1,19 @@
+## [1.7.0](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.6.1...1.7.0) (2025-02-20)
+
+### Features
+
+* new generated data ([f6a36c3](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/f6a36c33404180167b47b3a0c7756741cdad58b0))
+
+### Dependency updates
+
+* **deps:** update alchemist to v38.0.3 ([#43](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/43)) ([e3726bb](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/e3726bbbcbcbcfe7956b2da79cab8ff218a9d8eb))
+* **deps:** update alpine docker tag to v3.21.3 ([#54](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/54)) ([b8952d1](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/b8952d1653b35a6e7fb51b0cef06375ba6443df9))
+* **deps:** update plugin com.gradle.enterprise to v3.19.2 ([#55](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/issues/55)) ([0eb17b4](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/0eb17b49eb6888250a2a16eaaa60aa18fbfba3a7))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.6.1 [skip ci] ([0e03323](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/commit/0e03323ea9cd3e689f466a93087844edd8dfbaf5))
+
 ## [1.6.1](https://github.com/nicolasfara/experiments-2025-pulverization-prolog-placer/compare/1.6.0...1.6.1) (2025-02-19)
 
 ### Dependency updates
