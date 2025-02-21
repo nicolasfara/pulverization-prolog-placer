@@ -433,6 +433,15 @@ if __name__ == '__main__':
     sns.set_theme(
         style="whitegrid",
         palette="colorblind",
+        rc={
+            "text.usetex": True,
+            "font.family": "serif",
+            "axes.titlesize": 16,
+            "axes.labelsize": 14,
+            "xtick.labelsize": 12,
+            "ytick.labelsize": 12,
+            "legend.fontsize": 13
+        }
     )
 
     Path('charts/prolog-placer').mkdir(parents=True, exist_ok=True)
@@ -486,6 +495,7 @@ if __name__ == '__main__':
     # Adjust titles and labels
     g.set_titles(row_template="Deployment: {row_name}", col_template="Nodes: {col_name}")
     g.set_axis_labels("Time (minutes)", "Latency (ms)")
+    sns.move_legend(g, "lower center", bbox_to_anchor=(0.46, -0.1), ncol=3)
     # Save and show the plot
     g.savefig('charts/prolog-placer/IntraLatency_vs_InterLatency_perNodes_perStrategy.pdf')
 
@@ -500,8 +510,8 @@ if __name__ == '__main__':
     )
     # Replace legend values with custom names for Metric
     df_melted["Metric"] = df_melted["Metric"].replace({
-        "Carbon[mean]": "Carbon Emission",
-        "Energy[mean]": "Energy Consumption"
+        "Carbon[mean]": "Carbon Emission (kg)",
+        "Energy[mean]": "Energy Consumption (kWh)"
     })
     # Create the FacetGrid:
     g = sns.relplot(
@@ -521,24 +531,9 @@ if __name__ == '__main__':
     )
     # Adjust titles and labels
     g.set_titles(row_template="Deployment: {row_name}", col_template="Nodes: {col_name}")
-    g.set_axis_labels("Time (minutes)", "Value")
-    # # Add secondary y-axis for renewable energy percentage
-    # for ax, (_, subdata) in zip(g.axes.flat, df_reset.groupby(["deploymentStrategy", "nodes"])):
-    #     ax2 = ax.twinx()  # Create a twin y-axis
-    #     sns.lineplot(
-    #         data=subdata,
-    #         x="time",
-    #         y="renewablePercentage[mean]",
-    #         ax=ax2,
-    #         color="green",
-    #         linestyle="dashed",
-    #         label="Renewable %"
-    #     )
-    #     ax2.set_ylabel("Renewable Energy (%)")
-    #     # ax2.spines["right"].set_color("green")
-    #     # ax2.yaxis.label.set_color("green")
-    #     ax2.tick_params(axis='y', colors="green")
-    # Save and show the plot
+    g.set_axis_labels("Time (minutes)", "")
+    # Move the legend to the bottom using Seaborn's built-in function
+    sns.move_legend(g, "lower center", bbox_to_anchor=(0.46, -0.1), ncol=3)
     g.savefig('charts/prolog-placer/Carbon_vs_Energy_perNodes_perStrategy.pdf')
 
     # import math
